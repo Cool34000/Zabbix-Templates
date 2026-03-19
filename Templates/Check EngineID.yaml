@@ -1,0 +1,29 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 8d655871d57748f2b9ec3a77066a3b7c
+      template: 'Check EngineID'
+      name: 'Check EngineID'
+      description: |
+        Simple check to verify SNMP EngineID.
+        
+        Within an administrative domain, an snmpEngineID is the unique and
+        unambiguous identifier of an SNMP engine.  Since there is a one-to-
+        one association between SNMP engines and SNMP entities, it also
+        uniquely and unambiguously identifies the SNMP entity within that
+        administrative domain.  Note that it is possible for SNMP entities in
+        different administrative domains to have the same value for
+        snmpEngineID.  Federation of administrative domains may necessitate
+        assignment of new values.
+      groups:
+        - name: Templates
+      items:
+        - uuid: 8643dfba5e0c4645b436190b0a7ae36d
+          name: EngineID
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.6.3.10.2.1.1.0
+          key: engine.id
+          value_type: TEXT
