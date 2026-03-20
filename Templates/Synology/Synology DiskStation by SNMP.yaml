@@ -262,6 +262,16 @@ zabbix_export:
               value: Status
             - tag: Application
               value: 'Synology System'
+          triggers:
+            - uuid: b44c2d37472b4ac8a736c37b3dff153f
+              expression: 'last(/Synology DiskStation by SNMP/synoSystem.sysUpTime)<600'
+              name: '{HOST.NAME} has been restarted'
+              event_name: 'Synology: {HOST.NAME} has been restarted (uptime < 10m)'
+              priority: INFO
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: notice
         - uuid: 753f4a238d404d18ab002141a7685f08
           name: 'System Temperature'
           type: SNMP_AGENT
