@@ -7,6 +7,8 @@ zabbix_export:
     - uuid: 23c72497b8d646ad90bf7a0740e0c186
       template: 'Synology DiskStation by SNMP'
       name: 'Synology DiskStation by SNMP'
+      templates:
+        - name: 'ICMP Ping'
       groups:
         - name: 'Templates/NAS & SAN'
       items:
@@ -298,7 +300,7 @@ zabbix_export:
             - uuid: f58c126d166b478581f7cf9d2d90c3db
               expression: 'last(/Synology DiskStation by SNMP/synoSystem.upgradeAvailable)=1'
               name: 'Update available on {HOST.NAME}'
-              priority: WARNING
+              priority: AVERAGE
               manual_close: 'YES'
         - uuid: 882b071c2c0548deb1802759e8f365d4
           name: Version
@@ -495,7 +497,7 @@ zabbix_export:
                 - tag: Application
                   value: Disk
             - uuid: cf5711db52f4416caa8359b7452efa85
-              name: 'Storage Used on {#IFDESCR} (%)'
+              name: 'Storage Percent Used on {#IFDESCR}'
               type: CALCULATED
               key: 'host.hrStorage.hrStorageTable.hrStorageEntry.hrStorageUsed[{#IFINDEX},pct]'
               delay: 5m
@@ -514,6 +516,9 @@ zabbix_export:
                   expression: 'last(/Synology DiskStation by SNMP/host.hrStorage.hrStorageTable.hrStorageEntry.hrStorageUsed[{#IFINDEX},pct])>{$DISK_UTIL_WARN}'
                   name: 'Disk Space is LOW on {#IFDESCR}'
                   priority: WARNING
+                  dependencies:
+                    - name: 'Disk Space is CRITICAL on {#IFDESCR}'
+                      expression: 'last(/Synology DiskStation by SNMP/host.hrStorage.hrStorageTable.hrStorageEntry.hrStorageUsed[{#IFINDEX},pct])>{$DISK_UTIL_HIGH}'
             - uuid: ea5dce5e4e3a4a9aa261491ed89775d5
               name: 'Storage Used on {#IFDESCR}'
               type: SNMP_AGENT
@@ -802,7 +807,6 @@ zabbix_export:
                 - drawtype: BOLD_LINE
                   color: 0000EE
                   calc_fnc: ALL
-                  type: GRAPH_SUM
                   item:
                     host: 'Synology DiskStation by SNMP'
                     key: 'storageIO.storageIOTable.storageIOEntry.storageIOLA.[{#SNMPINDEX}]'
@@ -1279,6 +1283,9 @@ zabbix_export:
                     - type: STRING
                       name: reference
                       value: BSBRX
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
                     - type: STRING
                       name: secondary_label_units
                       value: °C
@@ -1297,6 +1304,9 @@ zabbix_export:
                     - type: STRING
                       name: reference
                       value: BEMCQ
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
                     - type: INTEGER
                       name: secondary_label_units_show
                       value: '0'
@@ -1404,7 +1414,7 @@ zabbix_export:
                   name: 'Upgrade status'
                   x: '36'
                   'y': '3'
-                  width: '36'
+                  width: '24'
                   height: '3'
                   hide_header: 'YES'
                   fields:
@@ -1428,6 +1438,36 @@ zabbix_export:
                     - type: INTEGER
                       name: show.1
                       value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FF4000
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 069C56
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FFEB3B
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '3'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: FFEB3B
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '4'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: 13191C
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '5'
                     - type: INTEGER
                       name: value_size
                       value: '30'
@@ -1450,6 +1490,9 @@ zabbix_export:
                     - type: STRING
                       name: reference
                       value: VWJHW
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
                     - type: INTEGER
                       name: secondary_label_units_show
                       value: '0'
@@ -1513,6 +1556,52 @@ zabbix_export:
                     - type: INTEGER
                       name: value_size
                       value: '30'
+                - type: item
+                  name: Availability
+                  x: '60'
+                  'y': '3'
+                  width: '12'
+                  height: '3'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: Availability
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Synology DiskStation by SNMP'
+                        key: icmpping
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: D3212C
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 069C56
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
             - name: Network
               widgets:
                 - type: graphprototype
