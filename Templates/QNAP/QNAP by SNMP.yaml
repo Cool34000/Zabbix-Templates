@@ -1,7 +1,7 @@
 zabbix_export:
   version: '7.4'
   template_groups:
-    - uuid: 36bff6c29af64692839d077febfc7079
+    - uuid: 99aa1866418341ccafcdd8e272ff8ff3
       name: 'Templates/Network devices'
   templates:
     - uuid: 760b176c08d9491d9945458ef9958a25
@@ -17,7 +17,7 @@ zabbix_export:
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.24681.1.4.1.1.1.1.4.2.0
           key: cpu.temp
-          delay: 30m
+          delay: 5m
           history: 7d
           trends: 7d
           tags:
@@ -95,7 +95,7 @@ zabbix_export:
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.24681.1.4.1.1.1.1.1.2.1.7.1
           key: system.temp
-          delay: 30m
+          delay: 5m
           history: 7d
           trends: 7d
           tags:
@@ -650,6 +650,9 @@ zabbix_export:
                   width: '72'
                   height: '6'
                   fields:
+                    - type: INTEGER
+                      name: ds.0.approximation
+                      value: '7'
                     - type: INTEGER
                       name: ds.0.color_palette
                       value: '0'
