@@ -488,8 +488,7 @@ zabbix_export:
             conditions:
               - macro: '{#IFDESCR}'
                 value: /volume
-          lifetime: 30d
-          enabled_lifetime_type: DISABLE_NEVER
+          lifetime_type: DELETE_IMMEDIATELY
           item_prototypes:
             - uuid: 88d7335bb5fb4308b97235923d9d1c45
               name: 'Storage Size on {#IFDESCR}'
@@ -737,8 +736,7 @@ zabbix_export:
             conditions:
               - macro: '{#SNMPVALUE}'
                 value: sd
-          lifetime: 30d
-          enabled_lifetime_type: DISABLE_NEVER
+          lifetime_type: DELETE_IMMEDIATELY
           description: 'An entry containing a device and its statistics.'
           item_prototypes:
             - uuid: 098e76bb02be4156806c4889bf0723a9
@@ -1462,13 +1460,13 @@ zabbix_export:
                       value: '2'
                     - type: STRING
                       name: thresholds.2.color
-                      value: FFEB3B
+                      value: FFC859
                     - type: STRING
                       name: thresholds.2.threshold
                       value: '3'
                     - type: STRING
                       name: thresholds.3.color
-                      value: FFEB3B
+                      value: FFC859
                     - type: STRING
                       name: thresholds.3.threshold
                       value: '4'
