@@ -1,7 +1,7 @@
 zabbix_export:
   version: '7.4'
   template_groups:
-    - uuid: 36bff6c29af64692839d077febfc7079
+    - uuid: 99aa1866418341ccafcdd8e272ff8ff3
       name: 'Templates/Network devices'
   templates:
     - uuid: c3b8aef8c6d24ee493fc7f1d698cfc71
@@ -100,9 +100,11 @@ zabbix_export:
               value: general
         - uuid: 83fa01fe8049481f808e0dd9ca477422
           name: 'Device name'
-          type: DEPENDENT
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.1004849.2.1.2.9.0
           key: device.name
-          history: 2d
+          delay: 5m
+          history: 7d
           value_type: CHAR
           description: |
             Nome administrativo do dispositivo. Por convenção, este é o nome de domínio totalmente qualificado
@@ -111,15 +113,9 @@ zabbix_export:
             An administratively-assigned name for this managed node.By convention, this is the node's fully-qualified domain name. If the name is unknown, the value is the zero-length string.
           inventory_link: NAME
           preprocessing:
-            - type: SNMP_WALK_VALUE
-              parameters:
-                - 1.3.6.1.2.1.1.5.0
-                - '0'
             - type: DISCARD_UNCHANGED_HEARTBEAT
               parameters:
                 - 1d
-          master_item:
-            key: general.system.walk
           tags:
             - tag: Device
               value: general
@@ -1909,13 +1905,73 @@ zabbix_export:
           description: 'Set your Web service (http or https)'
       dashboards:
         - uuid: 08c540e81cb14b4f9bc1e38c1cc68ede
-          name: 'NVR Dashboard'
-          auto_start: 'NO'
+          name: Overview
           pages:
-            - name: 'NVR Resources'
+            - name: Overview
               widgets:
+                - type: item
+                  name: 'NVR Name'
+                  width: '30'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '45'
+                    - type: STRING
+                      name: description
+                      value: 'NVR Name'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        key: device.name
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                - type: item
+                  name: 'NVR Model'
+                  'y': '2'
+                  width: '30'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'NVR Model'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        key: enterprises.deviceType
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: units_size
+                      value: '50'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
                 - type: svggraph
                   name: 'CPU Utilization'
+                  'y': '4'
                   width: '30'
                   height: '5'
                   fields:
@@ -1936,7 +1992,7 @@ zabbix_export:
                       value: '0'
                     - type: INTEGER
                       name: ds.0.width
-                      value: '3'
+                      value: '2'
                     - type: INTEGER
                       name: lefty
                       value: '0'
@@ -1978,7 +2034,7 @@ zabbix_export:
                       value: '1'
                 - type: svggraph
                   name: 'Memory Utilization'
-                  'y': '5'
+                  'y': '9'
                   width: '30'
                   height: '5'
                   fields:
@@ -1999,7 +2055,7 @@ zabbix_export:
                       value: '0'
                     - type: INTEGER
                       name: ds.0.width
-                      value: '3'
+                      value: '2'
                     - type: INTEGER
                       name: lefty
                       value: '0'
@@ -2044,16 +2100,16 @@ zabbix_export:
                       value: '1'
                 - type: svggraph
                   name: 'NVR Latency'
-                  'y': '10'
+                  'y': '14'
                   width: '30'
                   height: '5'
                   fields:
                     - type: INTEGER
                       name: ds.0.axisy
                       value: '1'
-                    - type: STRING
-                      name: ds.0.color
-                      value: D4E157
+                    - type: INTEGER
+                      name: ds.0.color_palette
+                      value: '0'
                     - type: INTEGER
                       name: ds.0.fill
                       value: '1'
@@ -2071,7 +2127,7 @@ zabbix_export:
                       value: '0'
                     - type: INTEGER
                       name: ds.0.width
-                      value: '3'
+                      value: '2'
                     - type: INTEGER
                       name: lefty
                       value: '0'
@@ -2123,10 +2179,93 @@ zabbix_export:
                     - type: INTEGER
                       name: working_time
                       value: '1'
+                - type: item
+                  name: 'NVR IP Address'
+                  x: '30'
+                  width: '9'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
+                    - type: STRING
+                      name: description
+                      value: 'NVR IP Address'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        key: enterprises.ipAddr
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: item
+                  name: 'NVR Version'
+                  x: '30'
+                  'y': '2'
+                  width: '33'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'NVR Version'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        key: enterprises.systemVersion
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: units_size
+                      value: '50'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
                 - type: graphprototype
-                  'y': '15'
-                  width: '30'
-                  height: '5'
+                  x: '30'
+                  'y': '4'
+                  width: '33'
+                  height: '12'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        name: 'Interface {#IFDESCR}: Network traffic'
+                    - type: STRING
+                      name: reference
+                      value: AAAKO
+                    - type: INTEGER
+                      name: rows
+                      value: '2'
+                - type: graphprototype
+                  x: '30'
+                  'y': '16'
+                  width: '42'
+                  height: '3'
                   fields:
                     - type: GRAPH_PROTOTYPE
                       name: graphid.0
@@ -2136,11 +2275,144 @@ zabbix_export:
                     - type: STRING
                       name: reference
                       value: AAAKP
+                - type: item
+                  name: 'NVR Serial Number'
+                  x: '39'
+                  width: '13'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
+                    - type: STRING
+                      name: description
+                      value: 'NVR Serial Number'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        key: enterprises.serialNumber
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: units_size
+                      value: '40'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: item
+                  name: 'NVR SNMP Availability'
+                  x: '52'
+                  width: '11'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
+                    - type: STRING
+                      name: description
+                      value: 'NVR SNMP Availability'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        key: 'zabbix[host,snmp,available]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: D3212C
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 069C56
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: item
+                  name: 'NVR Status'
+                  x: '63'
+                  width: '9'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '30'
+                    - type: STRING
+                      name: description
+                      value: 'NVR Status'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Intelbras Dahua NVR by SNMP'
+                        key: enterprises.systemStatus
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 069C56
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: D3212C
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: F57C00
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '2'
+                    - type: INTEGER
+                      name: units_size
+                      value: '30'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
                 - type: honeycomb
                   name: 'Camera Status'
-                  x: '30'
-                  width: '8'
-                  height: '15'
+                  x: '63'
+                  'y': '2'
+                  width: '9'
+                  height: '14'
                   fields:
                     - type: STRING
                       name: bg_color
@@ -2160,9 +2432,6 @@ zabbix_export:
                     - type: STRING
                       name: reference
                       value: ZTYSN
-                    - type: STRING
-                      name: secondary_label_color
-                      value: '093578'
                     - type: INTEGER
                       name: secondary_label_decimal_places
                       value: '0'
@@ -2171,13 +2440,13 @@ zabbix_export:
                       value: '0'
                     - type: STRING
                       name: thresholds.0.color
-                      value: 0097A7
+                      value: 069C56
                     - type: STRING
                       name: thresholds.0.threshold
                       value: '1'
                     - type: STRING
                       name: thresholds.1.color
-                      value: FF465C
+                      value: D3212C
                     - type: STRING
                       name: thresholds.1.threshold
                       value: '2'
@@ -2187,249 +2456,6 @@ zabbix_export:
                     - type: STRING
                       name: thresholds.2.threshold
                       value: '3'
-                - type: problems
-                  name: 'Recent Events'
-                  x: '30'
-                  'y': '15'
-                  width: '42'
-                  height: '5'
-                  fields:
-                    - type: STRING
-                      name: reference
-                      value: UPVCJ
-                    - type: INTEGER
-                      name: show_opdata
-                      value: '1'
-                    - type: INTEGER
-                      name: show_tags
-                      value: '1'
-                - type: item
-                  name: 'NVR STATUS'
-                  x: '38'
-                  width: '11'
-                  fields:
-                    - type: STRING
-                      name: bg_color
-                      value: B0BEC5
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '50'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Intelbras Dahua NVR by SNMP'
-                        key: enterprises.systemStatus
-                    - type: INTEGER
-                      name: show.0
-                      value: '2'
-                    - type: STRING
-                      name: thresholds.0.color
-                      value: 81C784
-                    - type: STRING
-                      name: thresholds.0.threshold
-                      value: '0'
-                    - type: STRING
-                      name: thresholds.1.color
-                      value: C62828
-                    - type: STRING
-                      name: thresholds.1.threshold
-                      value: '1'
-                    - type: STRING
-                      name: thresholds.2.color
-                      value: F57C00
-                    - type: STRING
-                      name: thresholds.2.threshold
-                      value: '2'
-                    - type: INTEGER
-                      name: units_size
-                      value: '30'
-                    - type: STRING
-                      name: value_color
-                      value: 5D4037
-                    - type: INTEGER
-                      name: value_size
-                      value: '50'
-                - type: item
-                  name: 'NVR MODEL'
-                  x: '38'
-                  'y': '2'
-                  width: '11'
-                  fields:
-                    - type: STRING
-                      name: bg_color
-                      value: B0BEC5
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '50'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Intelbras Dahua NVR by SNMP'
-                        key: enterprises.deviceType
-                    - type: INTEGER
-                      name: show.0
-                      value: '2'
-                    - type: INTEGER
-                      name: units_size
-                      value: '50'
-                    - type: STRING
-                      name: value_color
-                      value: 5D4037
-                    - type: INTEGER
-                      name: value_size
-                      value: '50'
-                - type: graphprototype
-                  x: '38'
-                  'y': '4'
-                  width: '34'
-                  height: '11'
-                  fields:
-                    - type: INTEGER
-                      name: columns
-                      value: '1'
-                    - type: GRAPH_PROTOTYPE
-                      name: graphid.0
-                      value:
-                        host: 'Intelbras Dahua NVR by SNMP'
-                        name: 'Interface {#IFDESCR}: Network traffic'
-                    - type: STRING
-                      name: reference
-                      value: AAAKO
-                    - type: INTEGER
-                      name: rows
-                      value: '2'
-                - type: item
-                  name: 'NVR SNMP AVAILABILITY'
-                  x: '49'
-                  width: '11'
-                  fields:
-                    - type: STRING
-                      name: bg_color
-                      value: B0BEC5
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '50'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Intelbras Dahua NVR by SNMP'
-                        key: 'zabbix[host,snmp,available]'
-                    - type: INTEGER
-                      name: show.0
-                      value: '2'
-                    - type: STRING
-                      name: thresholds.0.color
-                      value: C62828
-                    - type: STRING
-                      name: thresholds.0.threshold
-                      value: '0'
-                    - type: STRING
-                      name: thresholds.1.color
-                      value: 81C784
-                    - type: STRING
-                      name: thresholds.1.threshold
-                      value: '1'
-                    - type: INTEGER
-                      name: units_size
-                      value: '30'
-                    - type: STRING
-                      name: value_color
-                      value: 5D4037
-                    - type: INTEGER
-                      name: value_size
-                      value: '50'
-                - type: item
-                  name: 'NVR IP'
-                  x: '49'
-                  'y': '2'
-                  width: '11'
-                  fields:
-                    - type: STRING
-                      name: bg_color
-                      value: B0BEC5
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '50'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Intelbras Dahua NVR by SNMP'
-                        key: enterprises.ipAddr
-                    - type: INTEGER
-                      name: show.0
-                      value: '2'
-                    - type: INTEGER
-                      name: units_size
-                      value: '30'
-                    - type: STRING
-                      name: value_color
-                      value: 5D4037
-                    - type: INTEGER
-                      name: value_size
-                      value: '50'
-                - type: item
-                  name: 'NVR SERIAL NUMBER'
-                  x: '60'
-                  width: '12'
-                  fields:
-                    - type: STRING
-                      name: bg_color
-                      value: B0BEC5
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '40'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Intelbras Dahua NVR by SNMP'
-                        key: enterprises.serialNumber
-                    - type: INTEGER
-                      name: show.0
-                      value: '2'
-                    - type: INTEGER
-                      name: units_size
-                      value: '40'
-                    - type: STRING
-                      name: value_color
-                      value: 5D4037
-                    - type: INTEGER
-                      name: value_size
-                      value: '40'
-                - type: item
-                  name: 'NVR VERSION'
-                  x: '60'
-                  'y': '2'
-                  width: '12'
-                  fields:
-                    - type: STRING
-                      name: bg_color
-                      value: B0BEC5
-                    - type: INTEGER
-                      name: decimal_size
-                      value: '40'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Intelbras Dahua NVR by SNMP'
-                        key: enterprises.systemVersion
-                    - type: INTEGER
-                      name: show.0
-                      value: '2'
-                    - type: INTEGER
-                      name: units_size
-                      value: '40'
-                    - type: STRING
-                      name: value_color
-                      value: 5D4037
-                    - type: INTEGER
-                      name: value_size
-                      value: '40'
       valuemaps:
         - uuid: 9240b8f80583478aa92c39b710e96cda
           name: 'Camera Availability'
