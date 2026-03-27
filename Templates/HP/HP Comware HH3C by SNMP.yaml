@@ -1,7 +1,7 @@
 zabbix_export:
   version: '7.4'
   template_groups:
-    - uuid: 36bff6c29af64692839d077febfc7079
+    - uuid: 99aa1866418341ccafcdd8e272ff8ff3
       name: 'Templates/Network devices'
   templates:
     - uuid: 57aeccd43b744942b9555269b79a96ad
@@ -810,6 +810,8 @@ zabbix_export:
                   recovery_expression: 'last(/HP Comware HH3C by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
                   name: 'HP Comware HH3C: Interface {#IFNAME}({#IFALIAS}): Link down'
                   opdata: 'Current state: {ITEM.LASTVALUE1}'
+                  status: DISABLED
+                  discover: NO_DISCOVER
                   priority: AVERAGE
                   description: |
                     This trigger expression works as follows:
@@ -867,6 +869,8 @@ zabbix_export:
                 (last(/HP Comware HH3C by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2)
               name: 'HP Comware HH3C: Interface {#IFNAME}({#IFALIAS}): Ethernet has changed to lower speed than it was before'
               opdata: 'Current reported speed: {ITEM.LASTVALUE1}'
+              status: DISABLED
+              discover: NO_DISCOVER
               priority: INFO
               description: 'This Ethernet connection has transitioned down from its known maximum speed. This might be a sign of autonegotiation issues. Acknowledge to close the problem manually.'
               manual_close: 'YES'
