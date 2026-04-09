@@ -2636,11 +2636,17 @@ zabbix_export:
                 - tag: Application
                   value: 'Storage Batteries'
               trigger_prototypes:
+                - uuid: b7cf1ba1f2884800b2db4528bb451716
+                  expression: 'find(/Lenovo SAN DE4000H by Web API/santricity.storage.systems.id.hardware.inventory.[{#BATTERYREF}.{#SLOT},batteryStatus],#1,"like","learning")=1'
+                  name: 'Battery "{#BATTERYREF}" Status is Leaning'
+                  priority: INFO
+                  description: 'Battery {#BATTERYREF} in slot {#SLOT}'
+                  manual_close: 'YES'
                 - uuid: ab54e3276178484a8f8c258601dbc228
-                  expression: 'find(/Lenovo SAN DE4000H by Web API/santricity.storage.systems.id.hardware.inventory.[{#BATTERYREF}.{#SLOT},batteryStatus],#1,"like","optimal")=0'
+                  expression: 'find(/Lenovo SAN DE4000H by Web API/santricity.storage.systems.id.hardware.inventory.[{#BATTERYREF}.{#SLOT},batteryStatus],#1,"regexp","optimal|learning")=0'
                   name: 'Battery "{#BATTERYREF}" Status is not Optimal'
                   priority: HIGH
-                  description: 'Drive ID: {#ID}'
+                  description: 'Battery {#BATTERYREF} in slot {#SLOT}'
                   manual_close: 'YES'
           master_item:
             key: santricity.storage.systems.id.hardware.inventory
