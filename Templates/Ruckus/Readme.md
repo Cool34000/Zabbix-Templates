@@ -1,6 +1,6 @@
 ## Templates Ruckus
 Ce dossier contient des templates pour les matériels suivants :<br>
-- Ruckus One (Testé sur R350 et R550)
+- Ruckus One (Testé sur R350, R510 et R550)
 - Ruckus Unleashed (Testé sur R350, T350C et R550)
 
 Ruckus One :
