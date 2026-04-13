@@ -1,7 +1,7 @@
 zabbix_export:
   version: '7.4'
   template_groups:
-    - uuid: 36bff6c29af64692839d077febfc7079
+    - uuid: 99aa1866418341ccafcdd8e272ff8ff3
       name: 'Templates/Network devices'
   templates:
     - uuid: a19f1d3ddc234e06b4d7c9303fdbdb62
@@ -162,7 +162,7 @@ zabbix_export:
             - uuid: 83a1235be9864d80b37376a86acb19d0
               expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedSystemStatsCPUUtil,#3)>=85'
               name: 'High CPU Usage'
-              priority: HIGH
+              priority: AVERAGE
               manual_close: 'YES'
         - uuid: 8539325f87734da094cfc43f1ac87927
           name: 'Memory Utilization'
@@ -180,7 +180,7 @@ zabbix_export:
             - uuid: c19f03c2545b4c3080ce4f3f59cabdbb
               expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedSystemStatsMemoryUtil,#2)>=92'
               name: 'High Memory Usage'
-              priority: HIGH
+              priority: AVERAGE
               manual_close: 'YES'
         - uuid: 6ee47ae242e74808afc1d0638a8720a8
           name: 'Number of Access Point'
@@ -195,7 +195,7 @@ zabbix_export:
           triggers:
             - uuid: 9d8947c1eac84aa6a3e724179455858b
               expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedSystemStatsNumAP)<>20'
-              name: 'Rukus Access Point Offline'
+              name: 'Ruckus Access Point Offline'
               status: DISABLED
               priority: AVERAGE
         - uuid: c302dab54b8146b6837ae610720717d2
@@ -333,6 +333,34 @@ zabbix_export:
           tags:
             - tag: Application
               value: General
+        - uuid: 909d902e92004a19b694dcabe5ff4535
+          name: 'SNMP agent availability'
+          type: INTERNAL
+          key: 'zabbix[host,snmp,available]'
+          history: 90d
+          description: |
+            Availability of SNMP checks on the host. The value of this item corresponds to availability icons in the host list.
+            Possible value:
+            0 - not available
+            1 - available
+            2 - unknown
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: network
+          triggers:
+            - uuid: 3ab3c38cc31044fc807382f941607488
+              expression: 'max(/Ruckus UnLeashed by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
+              name: 'No SNMP data collection'
+              priority: WARNING
+              description: 'SNMP is not available for polling. Please check device connectivity and SNMP settings.'
+              dependencies:
+                - name: '{HOST.NAME} is unavailable by ICMP'
+                  expression: 'max(/Ruckus UnLeashed by SNMP/icmpping,#3)=0'
+              tags:
+                - tag: scope
+                  value: availability
       discovery_rules:
         - uuid: f3e125440d854b51a2298d7ac6d43d79
           name: 'Ruckus APs List'
@@ -449,6 +477,15 @@ zabbix_export:
                   priority: INFO
                   description: 'The host uptime is less than 10 minutes'
                   manual_close: 'YES'
+      tags:
+        - tag: class
+          value: network
+        - tag: class
+          value: wireless
+        - tag: target
+          value: ap
+        - tag: target
+          value: ruckus
       dashboards:
         - uuid: ba0742b91b0a48148679f7e6d72a25f4
           name: Overview
@@ -585,14 +622,11 @@ zabbix_export:
                     - type: STRING
                       name: ds.0.items.1
                       value: 'WLAN Total Tx Bytes'
-                    - type: STRING
-                      name: ds.0.items.2
-                      value: 'WLAN Total Tx Fail'
-                    - type: STRING
-                      name: ds.0.items.3
-                      value: 'WLAN Total Tx Retry'
                     - type: INTEGER
                       name: ds.0.width
+                      value: '2'
+                    - type: INTEGER
+                      name: legend_lines
                       value: '2'
                     - type: INTEGER
                       name: legend_statistic
@@ -731,7 +765,7 @@ zabbix_export:
                   name: 'Access Points'
                   x: '36'
                   'y': '6'
-                  width: '16'
+                  width: '8'
                   height: '3'
                   hide_header: 'YES'
                   fields:
@@ -761,6 +795,30 @@ zabbix_export:
                     - type: INTEGER
                       name: value_size
                       value: '35'
+                - type: svggraph
+                  x: '44'
+                  'y': '6'
+                  width: '28'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.approximation
+                      value: '7'
+                    - type: STRING
+                      name: ds.0.color
+                      value: 0277BD
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Users Connected'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: XTSMN
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
                 - type: item
                   name: 'Serial number'
                   x: '52'
@@ -795,40 +853,6 @@ zabbix_export:
                     - type: INTEGER
                       name: value_size
                       value: '30'
-                - type: item
-                  name: 'Connected Users'
-                  x: '52'
-                  'y': '6'
-                  width: '20'
-                  height: '3'
-                  hide_header: 'YES'
-                  fields:
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: STRING
-                      name: description
-                      value: 'Connected Users'
-                    - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Ruckus UnLeashed by SNMP'
-                        key: ruckusUnleashedSystemStatsNumSta
-                    - type: INTEGER
-                      name: show.0
-                      value: '1'
-                    - type: INTEGER
-                      name: show.1
-                      value: '2'
-                    - type: INTEGER
-                      name: show.2
-                      value: '4'
-                    - type: INTEGER
-                      name: value_size
-                      value: '35'
       valuemaps:
         - uuid: a643a0696d0c40c4811393c8379c00ab
           name: 'AP Role'

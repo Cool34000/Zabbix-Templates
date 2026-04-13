@@ -1,0 +1,785 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 99aa1866418341ccafcdd8e272ff8ff3
+      name: 'Templates/Network devices'
+  templates:
+    - uuid: 8479b449a4224cc89f56f57cff5de05f
+      template: 'Ruckus One by SNMP'
+      name: 'Ruckus One by SNMP'
+      groups:
+        - name: 'Templates/Network devices'
+      items:
+        - uuid: 60ccb148f95e489a904490caa005e90c
+          name: 'ICMP Ping'
+          type: SIMPLE
+          key: icmpping
+          history: 1w
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: network
+          triggers:
+            - uuid: 59013ec46a5b4a9386520610af813f5a
+              expression: 'max(/Ruckus One by SNMP/icmpping,#3)=0'
+              name: 'Unavailable by ICMP ping'
+              priority: HIGH
+              description: 'Last three attempts returned timeout.  Please check device connectivity.'
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: b79dc2fc787b4a25996c0ea5d10cc9b2
+          name: 'AP Firmware'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.25053.1.1.3.1.1.1.1.1.3.1
+          key: ruckusDeviceFirmware
+          delay: 5m
+          value_type: TEXT
+          description: 'Device Firmware version'
+          tags:
+            - tag: Application
+              value: AP->Firmware
+          triggers:
+            - uuid: b604fbddd0ac4ff1a654984be994802f
+              expression: 'last(/Ruckus One by SNMP/ruckusDeviceFirmware,#1)<>last(/Ruckus One by SNMP/ruckusDeviceFirmware,#2) and length(last(/Ruckus One by SNMP/ruckusDeviceFirmware))>0'
+              name: 'Ruckus One: Firmware has changed'
+              event_name: 'Ruckus One: {HOST.NAME} firmware has changed'
+              priority: INFO
+              description: 'Firmware version has changed. Acknowledge to close the problem manually.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: notice
+        - uuid: 882f89a3cf0b4149bf3cc9e10ca29dff
+          name: 'AP Name'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.25053.1.1.4.1.1.1.1.0
+          key: ruckusDeviceName
+          delay: 5m
+          value_type: TEXT
+          description: 'Device Name'
+          inventory_link: NAME
+          tags:
+            - tag: Application
+              value: AP->Name
+          triggers:
+            - uuid: d90f32b3d616494987ce5e312b67bdb8
+              expression: 'last(/Ruckus One by SNMP/ruckusDeviceName,#1)<>last(/Ruckus One by SNMP/ruckusDeviceName,#2) and length(last(/Ruckus One by SNMP/ruckusDeviceName))>0'
+              name: 'Ruckus One: System name has changed'
+              event_name: 'Ruckus One: System name has changed (new name: {ITEM.VALUE})'
+              priority: INFO
+              description: 'The name of the system has changed. Acknowledge to close the problem manually.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: notice
+        - uuid: 41be9039e365492caee703f1e02c1f9c
+          name: 'AP Model'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.25053.1.1.2.1.1.1.1.0
+          key: ruckusHwInfoModelNumber
+          delay: 5m
+          value_type: TEXT
+          description: 'Device Model'
+          tags:
+            - tag: Application
+              value: AP->Model
+        - uuid: 72fced4ccb664f929a6062c720c3ebd1
+          name: 'AP Serial Number'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.25053.1.1.2.1.1.1.2.0
+          key: ruckusHwInfoSerialNumber
+          delay: 5m
+          value_type: TEXT
+          description: 'Device Serial Number'
+          inventory_link: SERIALNO_A
+          tags:
+            - tag: Application
+              value: AP->SN
+          triggers:
+            - uuid: 68312df03c444898b021cc261074f2e4
+              expression: 'last(/Ruckus One by SNMP/ruckusHwInfoSerialNumber,#1)<>last(/Ruckus One by SNMP/ruckusHwInfoSerialNumber,#2) and length(last(/Ruckus One by SNMP/ruckusHwInfoSerialNumber))>0'
+              name: 'Ruckus One: AP has been replaced'
+              event_name: 'Ruckus One: AP has been replaced (new serial number received)'
+              priority: INFO
+              description: 'The device serial number has changed. Acknowledge to close the problem manually.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: notice
+        - uuid: da6f442de14f403dae23305f824f21e7
+          name: 'CPU utilization'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.25053.1.1.11.1.1.1.1.0
+          key: 'ruckusSystemCPUUtil[{#SNMPVALUE}]'
+          history: 7d
+          units: '%'
+          description: 'CPU Utilization'
+          tags:
+            - tag: component
+              value: cpu
+          triggers:
+            - uuid: a3c464e9dac64eed9b9c09678ccfac5b
+              expression: 'min(/Ruckus One by SNMP/ruckusSystemCPUUtil[{#SNMPVALUE}],5m)>{$CPU.UTIL.CRIT}'
+              name: 'High CPU utilization'
+              event_name: 'High CPU utilization (over {$CPU.UTIL.CRIT}% for 5m)'
+              priority: AVERAGE
+              description: 'CPU utilization is too high. The system might be slow to respond.'
+              tags:
+                - tag: scope
+                  value: performance
+        - uuid: 6aeeb41b943f4d63b697dc752af3609d
+          name: 'Memory Utilization'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.25053.1.1.11.1.1.1.2.0
+          key: 'ruckusSystemMemoryUtil[{#SNMPVALUE}]'
+          history: 7d
+          units: '%'
+          description: 'Memory Utilization'
+          tags:
+            - tag: component
+              value: memory
+          triggers:
+            - uuid: 1b384cea327c41c88a1732b20a302d48
+              expression: 'min(/Ruckus One by SNMP/ruckusSystemMemoryUtil[{#SNMPVALUE}],5m)>{$MEMORY.UTIL.MAX}'
+              name: 'High memory utilization'
+              event_name: 'High memory utilization (>{$MEMORY.UTIL.MAX}% for 5m)'
+              priority: AVERAGE
+              description: 'The system is running out of free memory.'
+              tags:
+                - tag: scope
+                  value: capacity
+                - tag: scope
+                  value: performance
+        - uuid: 8c4c6fe87674436ca271aa8a5c2607f1
+          name: Uptime
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.1.3.0
+          key: sysUpTime
+          units: uptime
+          description: 'Device Uptime'
+          preprocessing:
+            - type: CHECK_NOT_SUPPORTED
+              parameters:
+                - '-1'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '0'
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: Application
+              value: AP->Uptime
+          triggers:
+            - uuid: 8539300822154d37b35762790aa298aa
+              expression: '(last(/Ruckus One by SNMP/sysUpTime)>0 and last(/Ruckus One by SNMP/sysUpTime)<10m) or (last(/Ruckus One by SNMP/sysUpTime)=0 and last(/Ruckus One by SNMP/sysUpTime)<10m)'
+              name: 'Ruckus One: AP has been restarted'
+              event_name: 'Ruckus One: {HOST.NAME} has been restarted (uptime < 10m)'
+              priority: INFO
+              description: 'Uptime is less than 10 minutes.'
+              manual_close: 'YES'
+              dependencies:
+                - name: 'No SNMP data collection'
+                  expression: 'max(/Ruckus One by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
+              tags:
+                - tag: scope
+                  value: notice
+        - uuid: 9f198f0b3600420abc3285a24cb54aa8
+          name: 'SNMP agent availability'
+          type: INTERNAL
+          key: 'zabbix[host,snmp,available]'
+          history: 7d
+          description: |
+            Availability of SNMP checks on the host. The value of this item corresponds to availability icons in the host list.
+            Possible value:
+            0 - not available
+            1 - available
+            2 - unknown
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: network
+          triggers:
+            - uuid: 78c980037df04b2fa74eaf91390908f4
+              expression: 'max(/Ruckus One by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
+              name: 'No SNMP data collection'
+              priority: WARNING
+              description: 'SNMP is not available for polling. Please check device connectivity and SNMP settings.'
+              tags:
+                - tag: scope
+                  value: availability
+      discovery_rules:
+        - uuid: ef3b55503c4b43f286db2d2916a74c0f
+          name: Ruckus_AP
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#SNMPVALUE},.1.3.6.1.4.1.25053.1.1.4.1.1.1.11]'
+          key: 'AP-[{#SNMPVALUE}]'
+          delay: 2m
+          enabled_lifetime_type: DISABLE_NEVER
+          description: 'Discover AP and retrieve MAC address'
+          item_prototypes:
+            - uuid: 08cac2e15c48411bb99f6d120762931b
+              name: 'Serial Number'
+              type: SNMP_AGENT
+              snmp_oid: 1.3.6.1.4.1.25053.1.1.2.1.1.1.2.0
+              key: 'ruckusHwInfoSerialNumber[{#SNMPVALUE}]'
+              delay: '360'
+              value_type: TEXT
+              description: 'Retrieves device serial number'
+              tags:
+                - tag: Application
+                  value: AP->Serial
+            - uuid: e3247072800d43ef9a9aa222419ec097
+              name: 'Authenticated Clients - 5Ghz'
+              type: SNMP_AGENT
+              snmp_oid: 1.3.6.1.4.1.25053.1.1.12.1.1.1.3.1.3.2
+              key: 'ruckusRadioStatsNumAuthSta5Ghz[{#SNMPVALUE}]'
+              history: 30d
+              trends: 180d
+              units: users
+              description: 'Authenticated Users on 5Ghz'
+              tags:
+                - tag: Application
+                  value: 'Authenticated Users on 5Ghz'
+                - tag: Application
+                  value: SSID
+                - tag: component
+                  value: network
+            - uuid: 19ac785d12754bb38b323743be7d0297
+              name: 'Authenticated Clients - 2.4Ghz'
+              type: SNMP_AGENT
+              snmp_oid: 1.3.6.1.4.1.25053.1.1.12.1.1.1.3.1.3.1
+              key: 'ruckusRadioStatsNumAuthSta24Ghz[{#SNMPVALUE}]'
+              history: 30d
+              trends: 180d
+              units: users
+              description: 'Authenticated Users on 2.4Ghz'
+              tags:
+                - tag: Application
+                  value: 'Authenticated Users on 2.4Ghz'
+                - tag: Application
+                  value: SSID
+                - tag: component
+                  value: network
+            - uuid: 693615595004418da523901c3fda6a88
+              name: 'RX bytes on 5Ghz'
+              type: SNMP_AGENT
+              snmp_oid: .1.3.6.1.4.1.25053.1.1.12.1.1.1.3.1.16.2
+              key: 'ruckusRadioStatsRxBytes5Ghz[{#SNMPVALUE}]'
+              history: 30d
+              trends: 60d
+              units: b
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Traffic
+                - tag: component
+                  value: network
+            - uuid: 6b6fc0bfec034b199659933e804d3094
+              name: 'RX bytes on 2.4Ghz'
+              type: SNMP_AGENT
+              snmp_oid: .1.3.6.1.4.1.25053.1.1.12.1.1.1.3.1.16.1
+              key: 'ruckusRadioStatsRxBytes24Ghz[{#SNMPVALUE}]'
+              history: 30d
+              trends: 60d
+              units: b
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Traffic
+                - tag: component
+                  value: network
+            - uuid: 0e2b7cfb7676420e8be742da7dd41fa7
+              name: 'TX bytes on 5Ghz'
+              type: SNMP_AGENT
+              snmp_oid: .1.3.6.1.4.1.25053.1.1.12.1.1.1.3.1.22.2
+              key: 'ruckusRadioStatsTxBytes5Ghz[{#SNMPVALUE}]'
+              history: 30d
+              trends: 60d
+              units: b
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Traffic
+                - tag: component
+                  value: network
+            - uuid: b10871b4251a4dff9fbf818c91f1dd1e
+              name: 'TX bytes on 2.4Ghz'
+              type: SNMP_AGENT
+              snmp_oid: .1.3.6.1.4.1.25053.1.1.12.1.1.1.3.1.22.1
+              key: 'ruckusRadioStatsTxBytes24Ghz[{#SNMPVALUE}]'
+              history: 30d
+              trends: 60d
+              units: b
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Traffic
+                - tag: component
+                  value: network
+            - uuid: e03a373785e9402aa2ef7bf51b94cf18
+              name: 'WLAN Interface Status'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.25053.1.1.6.1.1.1.1.1.12.{#SNMPINDEX}'
+              key: 'ruckusWLANAdminStatus[{#SNMPVALUE}]'
+              delay: '120'
+              value_type: CHAR
+              description: 'Administrative status of the WLAN interface. Enumeration: ''down'': 2, ''up'': 1.'
+              tags:
+                - tag: Application
+                  value: AP->Status
+              trigger_prototypes:
+                - uuid: 88352bdcf8f448dd8d81c0a6fb4eb4c0
+                  expression: 'last(/Ruckus One by SNMP/ruckusWLANAdminStatus[{#SNMPVALUE}])=2'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/Ruckus One by SNMP/ruckusWLANAdminStatus[{#SNMPVALUE}])=1'
+                  name: '{#SNMPVALUE} - WLAN interface status was DOWN'
+                  event_name: '{#SNMPVALUE} - WLAN interface status was DOWN'
+                  priority: AVERAGE
+                  tags:
+                    - tag: scope
+                      value: availability
+        - uuid: 4d29494850544e73a452eefcfbe68483
+          name: SSIDs
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#SNMPVALUE},.1.3.6.1.4.1.25053.1.1.6.1.1.1.1.1.1]'
+          key: 'ssid-[{#SNMPVALUE}]'
+          delay: 2m
+          filter:
+            conditions:
+              - macro: '{#SNMPVALUE}'
+                value: '(?i)^(ruckus_cluster$|Recover\.Me-.*$|Wireless\s*\d+$|^$)'
+                operator: NOT_MATCHES_REGEX
+          description: 'Discover SSIDs from AP'
+          item_prototypes:
+            - uuid: 2283a04d2f2d40d09ed8d78ce1552601
+              name: 'SSID{#SNMPINDEX}: {#SNMPVALUE}'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.25053.1.1.6.1.1.1.1.1.1.{#SNMPINDEX}'
+              key: 'ruckusWLANSSID[{#SNMPINDEX}.{#SNMPVALUE}]'
+              delay: 2m
+              history: 30d
+              value_type: CHAR
+              tags:
+                - tag: Application
+                  value: SSID
+            - uuid: acffd7cee40047c88b9a960411c683c1
+              name: 'SSID{#SNMPINDEX}-{#SNMPVALUE} - Rx Bytes'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.25053.1.1.6.1.1.1.4.1.24.{#SNMPINDEX}'
+              key: 'ruckusWLANStatsRxBytes[{#SNMPINDEX}.{#SNMPVALUE}]'
+              delay: 2m
+              history: 30d
+              trends: 60d
+              units: b
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Traffic
+            - uuid: e1ba120f413747fa9d1b2a723412c81c
+              name: 'SSID{#SNMPINDEX}-{#SNMPVALUE} - Tx Bytes'
+              type: SNMP_AGENT
+              snmp_oid: '.1.3.6.1.4.1.25053.1.1.6.1.1.1.4.1.39.{#SNMPINDEX}'
+              key: 'ruckusWLANStatsTxBytes[{#SNMPINDEX}.{#SNMPVALUE}]'
+              delay: 2m
+              history: 30d
+              trends: 60d
+              units: b
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: Application
+                  value: Traffic
+          graph_prototypes:
+            - uuid: 89c83d230ec943f3a2d7c4ab3d08ea95
+              name: '{#SNMPINDEX}-{#SNMPVALUE} Data transmission'
+              ymin_type_1: FIXED
+              graph_items:
+                - drawtype: GRADIENT_LINE
+                  color: 1A7C11
+                  calc_fnc: MAX
+                  item:
+                    host: 'Ruckus One by SNMP'
+                    key: 'ruckusWLANStatsRxBytes[{#SNMPINDEX}.{#SNMPVALUE}]'
+                - sortorder: '1'
+                  drawtype: GRADIENT_LINE
+                  color: '274482'
+                  calc_fnc: MAX
+                  item:
+                    host: 'Ruckus One by SNMP'
+                    key: 'ruckusWLANStatsTxBytes[{#SNMPINDEX}.{#SNMPVALUE}]'
+      tags:
+        - tag: class
+          value: network
+        - tag: class
+          value: wireless
+        - tag: target
+          value: ap
+        - tag: target
+          value: ruckus
+      macros:
+        - macro: '{$CPU.UTIL.CRIT}'
+          value: '90'
+        - macro: '{$MEMORY.UTIL.MAX}'
+          value: '90'
+        - macro: '{$SNMP.TIMEOUT}'
+          value: 5m
+      dashboards:
+        - uuid: b142af42dc334bc8ae86519b7143b23e
+          name: Overview
+          pages:
+            - name: Overview
+              widgets:
+                - type: item
+                  name: 'Device Name'
+                  width: '36'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'Device Name'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus One by SNMP'
+                        key: ruckusDeviceName
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: item
+                  name: Uptime
+                  'y': '3'
+                  width: '36'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: Uptime
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus One by SNMP'
+                        key: sysUpTime
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: gauge
+                  name: 'CPU utilization'
+                  'y': '6'
+                  width: '18'
+                  height: '4'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'CPU usage'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '10'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus One by SNMP'
+                        key: 'ruckusSystemCPUUtil[{#SNMPVALUE}]'
+                    - type: STRING
+                      name: max
+                      value: '100'
+                    - type: STRING
+                      name: min
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '70'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '90'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: STRING
+                      name: units
+                      value: '%'
+                - type: svggraph
+                  name: 'WLAN RX/TX'
+                  'y': '10'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.color_palette
+                      value: '10'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'RX bytes*'
+                    - type: STRING
+                      name: ds.0.items.1
+                      value: 'TX bytes*'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '4'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: RDTOP
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                - type: gauge
+                  name: 'Memory utilization'
+                  x: '18'
+                  'y': '6'
+                  width: '18'
+                  height: '4'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'Memory usage'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '10'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus One by SNMP'
+                        key: 'ruckusSystemMemoryUtil[{#SNMPVALUE}]'
+                    - type: STRING
+                      name: max
+                      value: '100'
+                    - type: STRING
+                      name: min
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '70'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '90'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: STRING
+                      name: units
+                      value: '%'
+                - type: item
+                  name: Firmware
+                  x: '36'
+                  width: '36'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: Firmware
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus One by SNMP'
+                        key: ruckusDeviceFirmware
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: item
+                  name: Model
+                  x: '36'
+                  'y': '3'
+                  width: '18'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: Model
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus One by SNMP'
+                        key: ruckusHwInfoModelNumber
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: svggraph
+                  name: 'Authenticated Clients'
+                  x: '36'
+                  'y': '6'
+                  width: '36'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.approximation
+                      value: '7'
+                    - type: STRING
+                      name: ds.0.color
+                      value: 0277BD
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Authenticated Clients - 2.4GHz'
+                    - type: INTEGER
+                      name: ds.1.approximation
+                      value: '7'
+                    - type: STRING
+                      name: ds.1.color
+                      value: EF6C00
+                    - type: STRING
+                      name: ds.1.items.0
+                      value: 'Authenticated Clients - 5GHz'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '2'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: HUAMT
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                - type: item
+                  name: 'Serial number'
+                  x: '54'
+                  'y': '3'
+                  width: '18'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'Serial number'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus One by SNMP'
+                        key: ruckusHwInfoSerialNumber
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+  graphs:
+    - uuid: d9e896ae2c604a7b83e69bd24f338bcc
+      name: 'CPU Utilization'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 1A7C11
+          item:
+            host: 'Ruckus One by SNMP'
+            key: 'ruckusSystemCPUUtil[{#SNMPVALUE}]'
+    - uuid: d576261038874c99a85fcce81a4ad4b0
+      name: 'Memory Utilization'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        - drawtype: GRADIENT_LINE
+          color: 1A7C11
+          item:
+            host: 'Ruckus One by SNMP'
+            key: 'ruckusSystemMemoryUtil[{#SNMPVALUE}]'
