@@ -1006,8 +1006,12 @@ zabbix_export:
                   name: '{HOSTNAME} UPS battery critically low'
                   priority: HIGH
                 - uuid: 6cb9d84ef2cf40ff9dab1bf1013da3b7
-                  expression: 'find(/Synology DiskStation by SNMP/synology.ups.status[{#SNMPINDEX}],#1,"regexp","RB")=1'
+                  expression: 'count(/Synology DiskStation by SNMP/synology.ups.status[{#SNMPINDEX}],#5,"regexp","RB")=5'
                   name: '{HOSTNAME} UPS battery needs replacement'
+                  priority: HIGH
+                - uuid: 77e71fe369cb4e21aeea762e5ddac934
+                  expression: 'count(/Synology DiskStation by SNMP/synology.ups.status[{#SNMPINDEX}],#5,"regexp","ALARM")=5'
+                  name: '{HOSTNAME} UPS has an alarm'
                   priority: HIGH
                 - uuid: 6c16ef6285a24e9e9efd5e37ad9ab86e
                   expression: 'find(/Synology DiskStation by SNMP/synology.ups.status[{#SNMPINDEX}],#1,"regexp","OB")=1'
