@@ -1,7 +1,7 @@
 zabbix_export:
   version: '7.4'
   template_groups:
-    - uuid: 99aa1866418341ccafcdd8e272ff8ff3
+    - uuid: 36bff6c29af64692839d077febfc7079
       name: 'Templates/Network devices'
   templates:
     - uuid: a19f1d3ddc234e06b4d7c9303fdbdb62
@@ -18,7 +18,6 @@ zabbix_export:
           name: 'ICMP ping'
           type: SIMPLE
           key: icmpping
-          delay: '60'
           history: 7d
           valuemap:
             name: 'Service state'
@@ -34,7 +33,6 @@ zabbix_export:
           name: 'ICMP loss'
           type: SIMPLE
           key: icmppingloss
-          delay: '60'
           history: 7d
           value_type: FLOAT
           units: '%'
@@ -53,7 +51,6 @@ zabbix_export:
           name: 'ICMP response time'
           type: SIMPLE
           key: icmppingsec
-          delay: '60'
           history: 7d
           value_type: FLOAT
           units: s
@@ -69,11 +66,11 @@ zabbix_export:
                 - name: '{HOST.NAME} is unavailable by ICMP'
                   expression: 'max(/Ruckus UnLeashed by SNMP/icmpping,#3)=0'
         - uuid: b0dba53abc054034bc685bbbe1c1ef26
-          name: IP
+          name: 'IP Address'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.2.0
-          key: ruckusUnleashedSystemAPIP
-          delay: '3600'
+          key: ruckus.Unleashed.System.AP.IP
+          delay: 1h
           history: 90d
           value_type: CHAR
           tags:
@@ -82,20 +79,20 @@ zabbix_export:
         - uuid: ac30fc52d3ee4cd0a0e82431fd51fba0
           name: 'Total APs Capacity'
           type: CALCULATED
-          key: ruckusUnleashedSystemAPsLoad
+          key: ruckus.Unleashed.System.APs.Load
           history: 90d
           value_type: FLOAT
           units: '%'
-          params: 'round(100 * last(//ruckusUnleashedSystemStatsTotalAP) / last(//ruckusUnleashedSystemLicensedAPs),1)'
+          params: 'round(100 * last(//ruckus.Unleashed.System.Stats.Total.AP) / last(//ruckus.Unleashed.System.Licensed.APs),1)'
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
         - uuid: 9c4dc812cd4043ebb91ce7f43deed6f3
           name: 'Max Access Point Supported'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.12.0
-          key: ruckusUnleashedSystemLicensedAPs
-          delay: '3600'
+          key: ruckus.Unleashed.System.Licensed.APs
+          delay: 1h
           history: 90d
           tags:
             - tag: Application
@@ -104,20 +101,9 @@ zabbix_export:
           name: 'Max Connections'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.13.0
-          key: ruckusUnleashedSystemMaxSta
-          delay: '3600'
+          key: ruckus.Unleashed.System.Max.Sta
+          delay: 1h
           history: 90d
-          tags:
-            - tag: Application
-              value: General
-        - uuid: 18ffd48fa3a34d2886c9cd7da3e69f11
-          name: Model
-          type: SNMP_AGENT
-          snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.9.0
-          key: ruckusUnleashedSystemModel
-          delay: '3600'
-          history: 90d
-          value_type: CHAR
           tags:
             - tag: Application
               value: General
@@ -125,8 +111,8 @@ zabbix_export:
           name: 'Serial Number'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.15.0
-          key: ruckusUnleashedSystemSerialNumber
-          delay: '3600'
+          key: ruckus.Unleashed.System.Serial.Number
+          delay: 1h
           history: 90d
           value_type: CHAR
           tags:
@@ -135,32 +121,31 @@ zabbix_export:
         - uuid: 39a0dfd1c59d40fe9d181b6113eabfd5
           name: 'Total Users Capacity'
           type: CALCULATED
-          key: ruckusUnleashedSystemStaLoad
+          key: ruckus.Unleashed.System.Sta.Load
           history: 90d
           value_type: FLOAT
           units: '%'
-          params: 'round(100 * last(//ruckusUnleashedSystemStatsTotalNumSta) / last(//ruckusUnleashedSystemMaxSta),1)'
+          params: 'round(100 * last(//ruckus.Unleashed.System.Stats.Total.Num.Sta) / last(//ruckus.Unleashed.System.Max.Sta),1)'
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
           triggers:
             - uuid: 4b25e528e58e41d4a24273bfea0bd9aa
-              expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedSystemStaLoad,#3)>=80'
+              expression: 'last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.System.Sta.Load,#3)>=80'
               name: 'Too many users connected'
               priority: AVERAGE
         - uuid: 1f026e983d9c41cf92c6b74c2de9b642
-          name: 'CPU Utilized'
+          name: 'CPU Utilization'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.13.0
-          key: ruckusUnleashedSystemStatsCPUUtil
-          delay: '60'
+          key: ruckus.Unleashed.System.Stats.CPU.Util
           history: 90d
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
           triggers:
             - uuid: 83a1235be9864d80b37376a86acb19d0
-              expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedSystemStatsCPUUtil,#3)>=85'
+              expression: 'last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.System.Stats.CPU.Util,#3)>={$CPU.UTIL.CRIT}'
               name: 'High CPU Usage'
               priority: AVERAGE
               manual_close: 'YES'
@@ -168,17 +153,16 @@ zabbix_export:
           name: 'Memory Utilization'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.14.0
-          key: ruckusUnleashedSystemStatsMemoryUtil
-          delay: '3600'
+          key: ruckus.Unleashed.System.Stats.Memory.Util
           history: 90d
           value_type: FLOAT
           units: '%'
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
           triggers:
             - uuid: c19f03c2545b4c3080ce4f3f59cabdbb
-              expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedSystemStatsMemoryUtil,#2)>=92'
+              expression: 'last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.System.Stats.Memory.Util,#2)>={$MEMORY.UTIL.MAX}'
               name: 'High Memory Usage'
               priority: AVERAGE
               manual_close: 'YES'
@@ -186,68 +170,57 @@ zabbix_export:
           name: 'Number of Access Point'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.1.0
-          key: ruckusUnleashedSystemStatsNumAP
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.Num.AP
           history: 90d
           tags:
             - tag: Application
-              value: 'Acces Points'
-          triggers:
-            - uuid: 9d8947c1eac84aa6a3e724179455858b
-              expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedSystemStatsNumAP)<>20'
-              name: 'Ruckus Access Point Offline'
-              status: DISABLED
-              priority: AVERAGE
+              value: 'Access Points'
         - uuid: c302dab54b8146b6837ae610720717d2
           name: 'Users Connected'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.2.0
-          key: ruckusUnleashedSystemStatsNumSta
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.Num.Sta
           history: 90d
-          units: Users
+          units: users
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
         - uuid: c7b957588a94470881ac26bca87459bd
           name: 'Number of Registered Access Points'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.15.0
-          key: ruckusUnleashedSystemStatsTotalAP
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.Total.AP
           history: 90d
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
         - uuid: 7f65705b24e349d8a8ad91fa9ab2a260
           name: 'Total Users Connected'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.30.0
-          key: ruckusUnleashedSystemStatsTotalNumSta
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.Total.Num.Sta
           history: 90d
-          units: Users
+          units: users
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
         - uuid: 26613cafab324d4c964944c8aa64be06
           name: 'Associations Failed'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.16.0
-          key: ruckusUnleashedSystemStatsWLANTotalAssocFail
-          delay: '3600'
+          key: ruckus.Unleashed.System.Stats.WLAN.Total.Assoc.Fail
+          delay: 1h
           history: 90d
           tags:
             - tag: Application
-              value: 'Acces Points'
+              value: 'Access Points'
         - uuid: d747c95a8c4e4fb4ba1652980ef6b1bc
           name: 'WLAN Total Rx Bytes'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.6.0
-          key: ruckusUnleashedSystemStatsWLANTotalRxBytes
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.WLAN.Total.Rx.Bytes
           history: 90d
-          units: bps
+          units: Bps
           description: 'Total received bytes of wireless interfaces'
           preprocessing:
             - type: CHANGE_PER_SECOND
@@ -258,10 +231,9 @@ zabbix_export:
           name: 'WLAN Total Tx Bytes'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.9.0
-          key: ruckusUnleashedSystemStatsWLANTotalTxBytes
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.WLAN.Total.Tx.Bytes
           history: 90d
-          units: bps
+          units: Bps
           description: 'Total transmitted bytes of wireless interfaces'
           preprocessing:
             - type: CHANGE_PER_SECOND
@@ -272,8 +244,7 @@ zabbix_export:
           name: 'WLAN Total Tx Fail'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.11.0
-          key: ruckusUnleashedSystemStatsWLANTotalTxFail
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.WLAN.Total.Tx.Fail
           history: 90d
           units: packet
           description: 'Total transmitted fail packets of wireless interfaces'
@@ -286,8 +257,7 @@ zabbix_export:
           name: 'WLAN Total Tx Retry'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.15.12.0
-          key: ruckusUnleashedSystemStatsWLANTotalTxRetry
-          delay: '30'
+          key: ruckus.Unleashed.System.Stats.WLAN.Total.Tx.Retry
           history: 90d
           units: packet
           description: 'Total transmitted retry packets of wireless interfaces'
@@ -300,36 +270,27 @@ zabbix_export:
           name: 'Firmware Version'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.18.0
-          key: ruckusUnleashedSystemVersion
-          delay: '3600'
+          key: ruckus.Unleashed.System.Version
+          delay: 1h
           history: 90d
           value_type: CHAR
           tags:
             - tag: Application
               value: General
+          triggers:
+            - uuid: 37053648198549e4a6c5cb31ba452b93
+              expression: 'last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.System.Version,#1)<>last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.System.Version,#2)'
+              name: 'Firmware version changed on {HOST.NAME}'
+              priority: INFO
+              manual_close: 'YES'
         - uuid: 7f8ffc3f69804adaba88ae9296105d41
           name: 'Device name'
           type: SNMP_AGENT
           snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.1.0
-          key: sysName
-          delay: '3600'
+          key: sys.Name
+          delay: 1h
           history: 90d
           value_type: CHAR
-          tags:
-            - tag: Application
-              value: General
-        - uuid: f65b6ead3bcc434892ca68511a9950cd
-          name: 'Device uptime'
-          type: SNMP_AGENT
-          snmp_oid: 1.3.6.1.4.1.25053.1.15.1.1.1.1.8.0
-          key: sysUpTime
-          delay: '3600'
-          history: 7d
-          units: uptime
-          preprocessing:
-            - type: MULTIPLIER
-              parameters:
-                - '0.01'
           tags:
             - tag: Application
               value: General
@@ -353,7 +314,7 @@ zabbix_export:
             - uuid: 3ab3c38cc31044fc807382f941607488
               expression: 'max(/Ruckus UnLeashed by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
               name: 'No SNMP data collection'
-              priority: WARNING
+              priority: AVERAGE
               description: 'SNMP is not available for polling. Please check device connectivity and SNMP settings.'
               dependencies:
                 - name: '{HOST.NAME} is unavailable by ICMP'
@@ -362,121 +323,144 @@ zabbix_export:
                 - tag: scope
                   value: availability
       discovery_rules:
-        - uuid: f3e125440d854b51a2298d7ac6d43d79
-          name: 'Ruckus APs List'
+        - uuid: 92df177cd4d04362b84584b0fc353dfe
+          name: 'Ruckus AP discovery'
           type: SNMP_AGENT
-          snmp_oid: 'discovery[{#SNMPVALUE},1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.2.6]'
-          key: 'AP-[{#SNMPINDEX}]'
-          delay: '3600'
-          lifetime: 1d
+          snmp_oid: 'discovery[{#AP.MAC},1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.1.6,{#AP.NAME},1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.2.6,{#AP.STATUS},1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.3.6,{#AP.MODEL},1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.4.6,{#AP.UPTIME},1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.6.6,{#AP.ROLE},1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.9.6]'
+          key: ruckus.ap.discovery
+          delay: 5m
+          filter:
+            conditions:
+              - macro: '{#AP.MAC}'
+                value: .+
           enabled_lifetime_type: DISABLE_NEVER
           item_prototypes:
-            - uuid: 1d8284bfcc1348e4be1880fd11c022a9
-              name: 'AP Name ({#SNMPINDEX})'
+            - uuid: d042a74646d241ba8b746fcca5b5b486
+              name: 'AP Name [{#AP.MAC}]'
               type: SNMP_AGENT
-              snmp_oid: '1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.2.6.{#SNMPINDEX}'
-              key: 'ruckusUnleashedWLANAPDescription[{#SNMPINDEX}]'
-              history: 90d
+              snmp_oid: '.1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.2.6.{#SNMPINDEX}'
+              key: 'ruckus.Unleashed.WLAN.AP.Description[{#SNMPINDEX}]'
               value_type: TEXT
-              description: 'AP Name'
               tags:
-                - tag: AP
-                  value: '{#SNMPVALUE}'
-                - tag: Application
-                  value: 'Acces Points'
-            - uuid: 3b0d1554f4a3441486a2b3a075d7a3e2
-              name: 'AP MAC Addr [{#SNMPVALUE}]'
+                - tag: ap
+                  value: '{#AP.MAC}'
+                - tag: ap_name
+                  value: '{#AP.NAME}'
+                - tag: component
+                  value: ap
+                - tag: model
+                  value: '{#AP.MODEL}'
+            - uuid: 0011d58c0de84b8ebf023048043ae92e
+              name: 'AP MAC address [{#AP.MAC}]'
               type: SNMP_AGENT
-              snmp_oid: '1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.1.6.{#SNMPINDEX}'
-              key: 'ruckusUnleashedWLANAPMacAddr[{#SNMPINDEX}]'
-              history: 90d
+              snmp_oid: '.1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.1.6.{#SNMPINDEX}'
+              key: 'ruckus.Unleashed.WLAN.AP.MacAddr[{#SNMPINDEX}]'
               value_type: TEXT
-              description: 'AP Mac Address'
               tags:
-                - tag: AP
-                  value: '{#SNMPVALUE}'
-                - tag: Application
-                  value: 'Acces Points'
-            - uuid: cdcb6b140143458eac67607cbbc3d7fa
-              name: 'AP Model [{#SNMPVALUE}]'
+                - tag: ap
+                  value: '{#AP.MAC}'
+                - tag: ap_name
+                  value: '{#AP.NAME}'
+                - tag: component
+                  value: ap
+                - tag: model
+                  value: '{#AP.MODEL}'
+            - uuid: cc298ec398bd47c3b8c7328d7edac41c
+              name: 'AP Model [{#AP.MAC}]'
               type: SNMP_AGENT
               snmp_oid: '1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.4.6.{#SNMPINDEX}'
-              key: 'ruckusUnleashedWLANAPModel[{#SNMPINDEX}]'
-              history: 90d
+              key: 'ruckus.Unleashed.WLAN.AP.Model[{#SNMPINDEX}]'
               value_type: TEXT
-              description: 'Model name'
               tags:
-                - tag: AP
-                  value: '{#SNMPVALUE}'
-                - tag: Application
-                  value: 'Acces Points'
-            - uuid: e5cad0f2265146c594ca0be0567bbc4b
-              name: 'AP Role [{#SNMPVALUE}]'
+                - tag: ap
+                  value: '{#AP.MAC}'
+                - tag: ap_name
+                  value: '{#AP.NAME}'
+                - tag: component
+                  value: ap
+                - tag: model
+                  value: '{#AP.MODEL}'
+            - uuid: 939cbd07707c4c3985038340ce5e9cf3
+              name: 'AP Role [{#AP.MAC}]'
               type: SNMP_AGENT
               snmp_oid: '1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.9.6.{#SNMPINDEX}'
-              key: 'ruckusUnleashedWLANAPRole[{#SNMPINDEX}]'
-              history: 90d
-              description: 'AP role, master or member AP'
+              key: 'ruckus.Unleashed.WLAN.AP.Role[{#SNMPINDEX}]'
+              delay: 5m
+              trends: '0'
               valuemap:
                 name: 'AP Role'
               tags:
-                - tag: AP
-                  value: '{#SNMPVALUE}'
-                - tag: Application
-                  value: 'Acces Points'
+                - tag: ap
+                  value: '{#AP.MAC}'
+                - tag: ap_name
+                  value: '{#AP.NAME}'
+                - tag: component
+                  value: ap
+                - tag: model
+                  value: '{#AP.MODEL}'
               trigger_prototypes:
-                - uuid: 2d751fa967eb4971b9728ac38d273f4d
-                  expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedWLANAPRole[{#SNMPINDEX}],#1)<>last(/Ruckus UnLeashed by SNMP/ruckusUnleashedWLANAPRole[{#SNMPINDEX}],#2)'
-                  name: 'Acces Point {#SNMPVALUE} Role Changed'
-                  priority: AVERAGE
+                - uuid: 47403760b1404d0ba3d70d939ac08a69
+                  expression: 'last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.WLAN.AP.Role[{#SNMPINDEX}],#1)<>last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.WLAN.AP.Role[{#SNMPINDEX}],#2)'
+                  name: 'AP {#AP.MAC} role changed'
+                  priority: WARNING
                   manual_close: 'YES'
-            - uuid: c1e006746747492885c310be750cf3ed
-              name: 'AP State [{#SNMPVALUE}]'
+            - uuid: 5d005b3898bc4481b31f2ac92ec97b17
+              name: 'AP Status [{#AP.MAC}]'
               type: SNMP_AGENT
               snmp_oid: '1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.3.6.{#SNMPINDEX}'
-              key: 'ruckusUnleashedWLANAPStatus[{#SNMPINDEX}]'
-              delay: 30s
-              history: 90d
-              description: 'The connection status with Unleashed.'
+              key: 'ruckus.Unleashed.WLAN.AP.Status[{#SNMPINDEX}]'
+              trends: '0'
               valuemap:
                 name: RuckusAPStatus
               tags:
-                - tag: AP
-                  value: '{#SNMPVALUE}'
-                - tag: Application
-                  value: 'Acces Points'
+                - tag: ap
+                  value: '{#AP.MAC}'
+                - tag: ap_name
+                  value: '{#AP.NAME}'
+                - tag: component
+                  value: ap
+                - tag: model
+                  value: '{#AP.MODEL}'
               trigger_prototypes:
-                - uuid: ea050d902b754a32b64eac70b319fb94
-                  expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedWLANAPStatus[{#SNMPINDEX}])=0'
+                - uuid: 1cd520c5ee8c409bb39777093b11bb85
+                  expression: 'max(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.WLAN.AP.Status[{#SNMPINDEX}],2m)=0'
                   recovery_mode: RECOVERY_EXPRESSION
-                  recovery_expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedWLANAPStatus[{#SNMPINDEX}])=1'
-                  name: 'Acces Point {#SNMPVALUE} Disconnected'
+                  recovery_expression: 'last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.WLAN.AP.Status[{#SNMPINDEX}])=1'
+                  name: 'AP {#AP.MAC} disconnected for 2 minutes'
                   priority: AVERAGE
-                  manual_close: 'YES'
-            - uuid: 059790940d8549a685c0a024764e3fc3
-              name: 'AP Uptime [{#SNMPVALUE}]'
+                  dependencies:
+                    - name: 'No SNMP data collection'
+                      expression: 'max(/Ruckus UnLeashed by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
+            - uuid: a1373e60b159457eb0dc9098aa7753cc
+              name: 'AP Uptime [{#AP.MAC}]'
               type: SNMP_AGENT
               snmp_oid: '1.3.6.1.4.1.25053.1.15.2.1.1.2.1.1.6.6.{#SNMPINDEX}'
-              key: 'ruckusUnleashedWLANAPUptime[{#SNMPINDEX}]'
-              history: 90d
+              key: 'ruckus.Unleashed.WLAN.AP.Uptime[{#SNMPINDEX}]'
+              trends: '0'
               units: uptime
-              description: 'Model name'
               preprocessing:
                 - type: MULTIPLIER
                   parameters:
                     - '0.01'
               tags:
-                - tag: AP
-                  value: '{#SNMPVALUE}'
-                - tag: Application
-                  value: 'Acces Points'
-              trigger_prototypes:
-                - uuid: b005cd0416ac4d8e94f47cc7f06a716c
-                  expression: 'last(/Ruckus UnLeashed by SNMP/ruckusUnleashedWLANAPUptime[{#SNMPINDEX}])<10m'
-                  name: 'Acces Point {#SNMPVALUE} Restarted'
-                  priority: INFO
-                  description: 'The host uptime is less than 10 minutes'
-                  manual_close: 'YES'
+                - tag: ap
+                  value: '{#AP.MAC}'
+                - tag: ap_name
+                  value: '{#AP.NAME}'
+                - tag: component
+                  value: ap
+                - tag: model
+                  value: '{#AP.MODEL}'
+          trigger_prototypes:
+            - uuid: 120511aaa04f4eceba67f4e1c766f635
+              expression: |
+                last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.WLAN.AP.Uptime[{#SNMPINDEX}])<10m
+                and
+                last(/Ruckus UnLeashed by SNMP/ruckus.Unleashed.WLAN.AP.Status[{#SNMPINDEX}])=1
+              name: 'AP {#AP.MAC} restarted'
+              priority: INFO
+              description: 'The host uptime is less than 10 minutes.'
+              manual_close: 'YES'
       tags:
         - tag: class
           value: network
@@ -486,20 +470,28 @@ zabbix_export:
           value: ap
         - tag: target
           value: ruckus
+      macros:
+        - macro: '{$CPU.UTIL.CRIT}'
+          value: '90'
+        - macro: '{$MEMORY.UTIL.MAX}'
+          value: '90'
+        - macro: '{$SNMP.TIMEOUT}'
+          value: 5m
       dashboards:
         - uuid: ba0742b91b0a48148679f7e6d72a25f4
           name: Overview
           pages:
-            - widgets:
+            - name: Overview
+              widgets:
                 - type: item
-                  name: 'Device Name'
-                  width: '36'
+                  name: 'AP Group Name'
+                  width: '32'
                   height: '3'
                   hide_header: 'YES'
                   fields:
                     - type: STRING
                       name: description
-                      value: 'Device Name'
+                      value: 'AP Group Name'
                     - type: INTEGER
                       name: desc_v_pos
                       value: '0'
@@ -507,7 +499,7 @@ zabbix_export:
                       name: itemid.0
                       value:
                         host: 'Ruckus UnLeashed by SNMP'
-                        key: sysName
+                        key: sys.Name
                     - type: INTEGER
                       name: show.0
                       value: '1'
@@ -516,45 +508,12 @@ zabbix_export:
                       value: '2'
                     - type: INTEGER
                       name: value_size
-                      value: '35'
-                - type: item
-                  name: Uptime
-                  'y': '3'
-                  width: '36'
-                  height: '3'
-                  hide_header: 'YES'
-                  fields:
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: STRING
-                      name: description
-                      value: Uptime
-                    - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Ruckus UnLeashed by SNMP'
-                        key: sysUpTime
-                    - type: INTEGER
-                      name: show.0
-                      value: '1'
-                    - type: INTEGER
-                      name: show.1
-                      value: '2'
-                    - type: INTEGER
-                      name: show.2
-                      value: '4'
-                    - type: INTEGER
-                      name: value_size
-                      value: '35'
+                      value: '30'
                 - type: gauge
                   name: 'CPU utilization'
-                  'y': '6'
+                  'y': '3'
                   width: '18'
-                  height: '3'
+                  height: '4'
                   hide_header: 'YES'
                   fields:
                     - type: STRING
@@ -570,7 +529,7 @@ zabbix_export:
                       name: itemid.0
                       value:
                         host: 'Ruckus UnLeashed by SNMP'
-                        key: ruckusUnleashedSystemStatsCPUUtil
+                        key: ruckus.Unleashed.System.Stats.CPU.Util
                     - type: STRING
                       name: max
                       value: '100'
@@ -591,7 +550,7 @@ zabbix_export:
                       value: FFD54F
                     - type: STRING
                       name: thresholds.1.threshold
-                      value: '70'
+                      value: '80'
                     - type: STRING
                       name: thresholds.2.color
                       value: FF465C
@@ -607,11 +566,394 @@ zabbix_export:
                     - type: STRING
                       name: units
                       value: '%'
+                - type: honeycomb
+                  name: 'AP model'
+                  'y': '7'
+                  width: '72'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'AP Model [*]'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.regsub("^AP Model \[(.*)\]$", \1)}'
+                    - type: STRING
+                      name: reference
+                      value: PCBHB
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
+                - type: honeycomb
+                  name: 'AP role'
+                  'y': '10'
+                  width: '72'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'AP Role [*]'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.regsub("^AP Role \[(.*)\]$", \1)}'
+                    - type: STRING
+                      name: reference
+                      value: MPGWF
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 0080FF
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '1'
+                - type: honeycomb
+                  name: 'AP status'
+                  'y': '13'
+                  width: '72'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'AP Status [*]'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.regsub("^AP Status \[(.*)\]$", \1)}'
+                    - type: STRING
+                      name: reference
+                      value: EBNSC
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: F44336
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 32CD32
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FCCB1D
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.3.color
+                      value: FF5722
+                    - type: STRING
+                      name: thresholds.3.threshold
+                      value: '3'
+                    - type: STRING
+                      name: thresholds.4.color
+                      value: F9A825
+                    - type: STRING
+                      name: thresholds.4.threshold
+                      value: '4'
+                - type: svggraph
+                  name: 'AP uptime'
+                  'y': '16'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.approximation
+                      value: '7'
+                    - type: INTEGER
+                      name: ds.0.color_palette
+                      value: '10'
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'AP Uptime [*]'
+                    - type: INTEGER
+                      name: ds.0.missingdatafunc
+                      value: '1'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '2'
+                    - type: INTEGER
+                      name: legend
+                      value: '0'
+                    - type: STRING
+                      name: reference
+                      value: UMBHK
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                - type: gauge
+                  name: 'Memory usage'
+                  x: '18'
+                  'y': '3'
+                  width: '18'
+                  height: '4'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: description
+                      value: 'Memory usage'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '10'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus UnLeashed by SNMP'
+                        key: ruckus.Unleashed.System.Stats.Memory.Util
+                    - type: STRING
+                      name: max
+                      value: '100'
+                    - type: STRING
+                      name: min
+                      value: '0'
+                    - type: INTEGER
+                      name: scale_size
+                      value: '10'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '80'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '90'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: STRING
+                      name: units
+                      value: '%'
+                - type: item
+                  name: 'Firmware version'
+                  x: '32'
+                  width: '23'
+                  height: '3'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: 'Firmware version'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus UnLeashed by SNMP'
+                        key: ruckus.Unleashed.System.Version
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: item
+                  name: 'Number of AP'
+                  x: '36'
+                  'y': '3'
+                  width: '12'
+                  height: '4'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: 'Number of AP'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus UnLeashed by SNMP'
+                        key: ruckus.Unleashed.System.Stats.Num.AP
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: item
+                  name: 'WiFi clients'
+                  x: '48'
+                  'y': '3'
+                  width: '12'
+                  height: '4'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: 'WiFi clients'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus UnLeashed by SNMP'
+                        key: ruckus.Unleashed.System.Stats.Total.Num.Sta
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: item
+                  name: 'Master AP Serial number'
+                  x: '55'
+                  width: '17'
+                  height: '3'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: 'Master AP Serial number'
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus UnLeashed by SNMP'
+                        key: ruckus.Unleashed.System.Serial.Number
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+                - type: item
+                  name: Availability
+                  x: '60'
+                  'y': '3'
+                  width: '12'
+                  height: '4'
+                  hide_header: 'YES'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: Availability
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'Ruckus UnLeashed by SNMP'
+                        key: icmpping
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: F44336
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 32CD32
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: INTEGER
+                      name: value_size
+                      value: '30'
+            - name: WiFi
+              widgets:
+                - type: svggraph
+                  name: 'WiFi clients'
+                  width: '72'
+                  height: '6'
+                  fields:
+                    - type: INTEGER
+                      name: ds.0.approximation
+                      value: '7'
+                    - type: STRING
+                      name: ds.0.color
+                      value: 0277BD
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Users Connected'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: TBYNT
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
                 - type: svggraph
                   name: 'WLAN RX/TX'
-                  'y': '9'
+                  'y': '6'
                   width: '72'
-                  height: '5'
+                  height: '6'
                   fields:
                     - type: INTEGER
                       name: ds.0.color_palette
@@ -633,232 +975,16 @@ zabbix_export:
                       value: '1'
                     - type: STRING
                       name: reference
-                      value: HBEIC
+                      value: RLMVC
                     - type: INTEGER
                       name: righty
                       value: '0'
-                - type: gauge
-                  name: 'Memory usage'
-                  x: '18'
-                  'y': '6'
-                  width: '18'
-                  height: '3'
-                  hide_header: 'YES'
-                  fields:
-                    - type: STRING
-                      name: description
-                      value: 'Memory usage'
-                    - type: INTEGER
-                      name: desc_size
-                      value: '10'
-                    - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Ruckus UnLeashed by SNMP'
-                        key: ruckusUnleashedSystemStatsMemoryUtil
-                    - type: STRING
-                      name: max
-                      value: '100'
-                    - type: STRING
-                      name: min
-                      value: '0'
-                    - type: INTEGER
-                      name: scale_size
-                      value: '10'
-                    - type: STRING
-                      name: thresholds.0.color
-                      value: 0EC9AC
-                    - type: STRING
-                      name: thresholds.0.threshold
-                      value: '0'
-                    - type: STRING
-                      name: thresholds.1.color
-                      value: FFD54F
-                    - type: STRING
-                      name: thresholds.1.threshold
-                      value: '70'
-                    - type: STRING
-                      name: thresholds.2.color
-                      value: FF465C
-                    - type: STRING
-                      name: thresholds.2.threshold
-                      value: '90'
-                    - type: INTEGER
-                      name: th_show_arc
-                      value: '1'
-                    - type: INTEGER
-                      name: th_show_labels
-                      value: '1'
-                    - type: STRING
-                      name: units
-                      value: '%'
-                - type: item
-                  name: Firmware
-                  x: '36'
-                  width: '36'
-                  height: '3'
-                  fields:
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: STRING
-                      name: description
-                      value: Firmware
-                    - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Ruckus UnLeashed by SNMP'
-                        key: ruckusUnleashedSystemVersion
-                    - type: INTEGER
-                      name: show.0
-                      value: '1'
-                    - type: INTEGER
-                      name: show.1
-                      value: '2'
-                    - type: INTEGER
-                      name: show.2
-                      value: '4'
-                    - type: INTEGER
-                      name: value_size
-                      value: '35'
-                - type: item
-                  name: Model
-                  x: '36'
-                  'y': '3'
-                  width: '16'
-                  height: '3'
-                  hide_header: 'YES'
-                  fields:
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: STRING
-                      name: description
-                      value: Model
-                    - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Ruckus UnLeashed by SNMP'
-                        key: ruckusUnleashedSystemModel
-                    - type: INTEGER
-                      name: show.0
-                      value: '1'
-                    - type: INTEGER
-                      name: show.1
-                      value: '2'
-                    - type: INTEGER
-                      name: show.2
-                      value: '4'
-                    - type: INTEGER
-                      name: value_size
-                      value: '35'
-                - type: item
-                  name: 'Access Points'
-                  x: '36'
-                  'y': '6'
-                  width: '8'
-                  height: '3'
-                  hide_header: 'YES'
-                  fields:
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: STRING
-                      name: description
-                      value: 'Access Points'
-                    - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Ruckus UnLeashed by SNMP'
-                        key: ruckusUnleashedSystemStatsNumAP
-                    - type: INTEGER
-                      name: show.0
-                      value: '1'
-                    - type: INTEGER
-                      name: show.1
-                      value: '2'
-                    - type: INTEGER
-                      name: show.2
-                      value: '4'
-                    - type: INTEGER
-                      name: value_size
-                      value: '35'
-                - type: svggraph
-                  x: '44'
-                  'y': '6'
-                  width: '28'
-                  height: '3'
-                  fields:
-                    - type: INTEGER
-                      name: ds.0.approximation
-                      value: '7'
-                    - type: STRING
-                      name: ds.0.color
-                      value: 0277BD
-                    - type: STRING
-                      name: ds.0.items.0
-                      value: 'Users Connected'
-                    - type: INTEGER
-                      name: legend_statistic
-                      value: '1'
-                    - type: STRING
-                      name: reference
-                      value: XTSMN
-                    - type: INTEGER
-                      name: righty
-                      value: '0'
-                - type: item
-                  name: 'Serial number'
-                  x: '52'
-                  'y': '3'
-                  width: '20'
-                  height: '3'
-                  hide_header: 'YES'
-                  fields:
-                    - type: INTEGER
-                      name: decimal_places
-                      value: '0'
-                    - type: STRING
-                      name: description
-                      value: 'Serial number'
-                    - type: INTEGER
-                      name: desc_v_pos
-                      value: '0'
-                    - type: ITEM
-                      name: itemid.0
-                      value:
-                        host: 'Ruckus UnLeashed by SNMP'
-                        key: ruckusUnleashedSystemSerialNumber
-                    - type: INTEGER
-                      name: show.0
-                      value: '1'
-                    - type: INTEGER
-                      name: show.1
-                      value: '2'
-                    - type: INTEGER
-                      name: show.2
-                      value: '4'
-                    - type: INTEGER
-                      name: value_size
-                      value: '30'
       valuemaps:
         - uuid: a643a0696d0c40c4811393c8379c00ab
           name: 'AP Role'
           mappings:
             - value: '0'
-              newvalue: member
+              newvalue: Member
             - value: '1'
               newvalue: Master
         - uuid: d008df6ef75345f48581333408d7c615
@@ -889,7 +1015,7 @@ zabbix_export:
           calc_fnc: ALL
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsCPUUtil
+            key: ruckus.Unleashed.System.Stats.CPU.Util
     - uuid: d49fd6c8551b42adbaa39a3e848f0d15
       name: 'Memory Usage'
       graph_items:
@@ -897,7 +1023,7 @@ zabbix_export:
           calc_fnc: ALL
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsMemoryUtil
+            key: ruckus.Unleashed.System.Stats.Memory.Util
     - uuid: 3c09124df41a41afbd27551e47361f38
       name: 'Network Bandwidth'
       percent_left: '90'
@@ -906,20 +1032,20 @@ zabbix_export:
           calc_fnc: ALL
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsWLANTotalRxBytes
+            key: ruckus.Unleashed.System.Stats.WLAN.Total.Rx.Bytes
         - sortorder: '1'
           color: 03A9F4
           calc_fnc: ALL
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsWLANTotalTxBytes
+            key: ruckus.Unleashed.System.Stats.WLAN.Total.Tx.Bytes
         - sortorder: '2'
           color: F63100
           yaxisside: RIGHT
           calc_fnc: ALL
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsWLANTotalTxFail
+            key: ruckus.Unleashed.System.Stats.WLAN.Total.Tx.Fail
     - uuid: 19e222ebf42642c8a84db59cf7f988ae
       name: 'Ping Graph'
       graph_items:
@@ -939,7 +1065,7 @@ zabbix_export:
         - color: EE0000
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsNumSta
+            key: ruckus.Unleashed.System.Stats.Num.Sta
     - uuid: da6e304cd3f2466eb2d119e5784289ab
       name: 'Unleashed Connected APs'
       width: '400'
@@ -954,13 +1080,13 @@ zabbix_export:
           type: GRAPH_SUM
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsTotalAP
+            key: ruckus.Unleashed.System.Stats.Total.AP
         - sortorder: '1'
           color: BFFF00
           calc_fnc: LAST
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsNumAP
+            key: ruckus.Unleashed.System.Stats.Num.AP
     - uuid: 9b0dbbada66c4083950e9a91daad151c
       name: 'Unleashed Users Capacity'
       width: '400'
@@ -975,10 +1101,10 @@ zabbix_export:
           type: GRAPH_SUM
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemMaxSta
+            key: ruckus.Unleashed.System.Max.Sta
         - sortorder: '1'
           color: BFFF00
           calc_fnc: LAST
           item:
             host: 'Ruckus UnLeashed by SNMP'
-            key: ruckusUnleashedSystemStatsTotalNumSta
+            key: ruckus.Unleashed.System.Stats.Total.Num.Sta
