@@ -30,7 +30,7 @@ zabbix_export:
           triggers:
             - uuid: 9d209cfef8c6473c985d7931e72b5f0b
               expression: 'max(/D-Link DGS_DXS Switch by SNMP/icmpping,#3)=0'
-              name: 'D-Link DES_DGS Switch: Unavailable by ICMP ping'
+              name: 'D-Link DGS_DXS Switch: Unavailable by ICMP ping'
               priority: HIGH
               description: 'Last three attempts returned timeout. Please check device connectivity.'
               tags:
@@ -51,12 +51,12 @@ zabbix_export:
           triggers:
             - uuid: 3c456d10586d4098a7998904ee6c6fc2
               expression: 'min(/D-Link DGS_DXS Switch by SNMP/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/D-Link DGS_DXS Switch by SNMP/icmppingloss,5m)<100'
-              name: 'D-Link DES_DGS Switch: High ICMP ping loss'
+              name: 'D-Link DGS_DXS Switch: High ICMP ping loss'
               opdata: 'Loss: {ITEM.LASTVALUE1}'
               priority: WARNING
               description: 'ICMP packets loss detected.'
               dependencies:
-                - name: 'D-Link DES_DGS Switch: Unavailable by ICMP ping'
+                - name: 'D-Link DGS_DXS Switch: Unavailable by ICMP ping'
                   expression: 'max(/D-Link DGS_DXS Switch by SNMP/icmpping,#3)=0'
               tags:
                 - tag: scope
@@ -78,14 +78,14 @@ zabbix_export:
           triggers:
             - uuid: e6326dcdcaec47d5b2ee4c30508f2dfa
               expression: 'avg(/D-Link DGS_DXS Switch by SNMP/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}'
-              name: 'D-Link DES_DGS Switch: High ICMP ping response time'
+              name: 'D-Link DGS_DXS Switch: High ICMP ping response time'
               opdata: 'Value: {ITEM.LASTVALUE1}'
               priority: WARNING
               description: 'Average ICMP response time is too high.'
               dependencies:
-                - name: 'D-Link DES_DGS Switch: High ICMP ping loss'
+                - name: 'D-Link DGS_DXS Switch: High ICMP ping loss'
                   expression: 'min(/D-Link DGS_DXS Switch by SNMP/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/D-Link DGS_DXS Switch by SNMP/icmppingloss,5m)<100'
-                - name: 'D-Link DES_DGS Switch: Unavailable by ICMP ping'
+                - name: 'D-Link DGS_DXS Switch: Unavailable by ICMP ping'
                   expression: 'max(/D-Link DGS_DXS Switch by SNMP/icmpping,#3)=0'
               tags:
                 - tag: scope
@@ -136,8 +136,8 @@ zabbix_export:
           triggers:
             - uuid: 29a12c03a4cf4cb2b54bfbceca4e5514
               expression: 'min(/D-Link DGS_DXS Switch by SNMP/system.cpu.util[agentCPUutilizationIn1min.0],5m)>{$CPU.UTIL.CRIT}'
-              name: 'D-Link DES_DGS Switch: High CPU utilization'
-              event_name: 'D-Link DES_DGS Switch: High CPU utilization (over {$CPU.UTIL.CRIT}% for 5m)'
+              name: 'D-Link DGS_DXS Switch: High CPU utilization'
+              event_name: 'D-Link DGS_DXS Switch: High CPU utilization (over {$CPU.UTIL.CRIT}% for 5m)'
               opdata: 'Current utilization: {ITEM.LASTVALUE1}'
               priority: WARNING
               description: 'The CPU utilization is too high. The system might be slow to respond.'
@@ -209,7 +209,7 @@ zabbix_export:
           triggers:
             - uuid: e7a98da51df04c0cb5473f1be026a5cb
               expression: 'last(/D-Link DGS_DXS Switch by SNMP/system.hw.firmware,#1)<>last(/D-Link DGS_DXS Switch by SNMP/system.hw.firmware,#2) and length(last(/D-Link DGS_DXS Switch by SNMP/system.hw.firmware))>0'
-              name: 'D-Link DES_DGS Switch: Firmware has changed'
+              name: 'D-Link DGS_DXS Switch: Firmware has changed'
               opdata: 'Current value: {ITEM.LASTVALUE1}'
               priority: INFO
               description: 'Firmware version has changed. Acknowledge to close the problem manually.'
@@ -258,8 +258,8 @@ zabbix_export:
           triggers:
             - uuid: 4bc91ebf4ee845ccbbbc5b8587292795
               expression: 'last(/D-Link DGS_DXS Switch by SNMP/system.hw.serialnumber,#1)<>last(/D-Link DGS_DXS Switch by SNMP/system.hw.serialnumber,#2) and length(last(/D-Link DGS_DXS Switch by SNMP/system.hw.serialnumber))>0'
-              name: 'D-Link DES_DGS Switch: Device has been replaced'
-              event_name: 'D-Link DES_DGS Switch: Device has been replaced (new serial number received)'
+              name: 'D-Link DGS_DXS Switch: Device has been replaced'
+              event_name: 'D-Link DGS_DXS Switch: Device has been replaced (new serial number received)'
               priority: INFO
               description: 'Device serial number has changed. Acknowledge to close the problem manually.'
               manual_close: 'YES'
@@ -371,8 +371,8 @@ zabbix_export:
           triggers:
             - uuid: c9a9c8861b19453fb4a4b1438b234882
               expression: 'last(/D-Link DGS_DXS Switch by SNMP/system.name,#1)<>last(/D-Link DGS_DXS Switch by SNMP/system.name,#2) and length(last(/D-Link DGS_DXS Switch by SNMP/system.name))>0'
-              name: 'D-Link DES_DGS Switch: System name has changed'
-              event_name: 'D-Link DES_DGS Switch: System name has changed (new name: {ITEM.VALUE})'
+              name: 'D-Link DGS_DXS Switch: System name has changed'
+              event_name: 'D-Link DGS_DXS Switch: System name has changed (new name: {ITEM.VALUE})'
               priority: INFO
               description: 'The name of the system has changed. Acknowledge to close the problem manually.'
               manual_close: 'YES'
@@ -436,12 +436,12 @@ zabbix_export:
           triggers:
             - uuid: 65028f1a671b4bcb8c7222a090eef27e
               expression: 'max(/D-Link DGS_DXS Switch by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
-              name: 'D-Link DES_DGS Switch: No SNMP data collection'
+              name: 'D-Link DGS_DXS Switch: No SNMP data collection'
               opdata: 'Current state: {ITEM.LASTVALUE1}'
-              priority: WARNING
+              priority: AVERAGE
               description: 'SNMP is not available for polling. Please check device connectivity and SNMP settings.'
               dependencies:
-                - name: 'D-Link DES_DGS Switch: Unavailable by ICMP ping'
+                - name: 'D-Link DGS_DXS Switch: Unavailable by ICMP ping'
                   expression: 'max(/D-Link DGS_DXS Switch by SNMP/icmpping,#3)=0'
               tags:
                 - tag: scope
@@ -838,7 +838,7 @@ zabbix_export:
                 avg(/D-Link DGS_DXS Switch by SNMP/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}]) and
                 avg(/D-Link DGS_DXS Switch by SNMP/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])
               name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage'
-              event_name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage (>{$IF.UTIL.MAX:"{#IFNAME}"}%)'
+              event_name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage (>{$IF.UTIL.MAX:"{#IFNAME}"}%)'
               opdata: 'In: {ITEM.LASTVALUE1}, out: {ITEM.LASTVALUE3}, speed: {ITEM.LASTVALUE2}'
               priority: WARNING
               description: 'The utilization of the network interface is close to its estimated maximum bandwidth.'
@@ -1037,6 +1037,280 @@ zabbix_export:
                   	});
                   });
                   return JSON.stringify(data);
+        - uuid: 08a06b53c7a849ca9ee5cfe01146ee3a
+          name: 'PoE ports discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#POE_ADMIN},1.3.6.1.2.1.105.1.1.1.3,{#POE_DETECTION},1.3.6.1.2.1.105.1.1.1.6,{#POE_PRIORITY},1.3.6.1.2.1.105.1.1.1.7,{#POE_CLASS},1.3.6.1.2.1.105.1.1.1.10]'
+          key: poe.port.discovery
+          delay: 1h
+          item_prototypes:
+            - uuid: a472bc2e85a44b4caa89dcbf89b486df
+              name: 'PoE {#POE_IFNAME}: Admin status'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.1.1.3.{#SNMPINDEX}]'
+              key: 'poe.port.admin[pethPsePortAdminEnable.{#SNMPINDEX}]'
+              delay: 3m
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                The administrative PoE state of the port.
+                A value of true means PoE is administratively enabled on the port.
+              valuemap:
+                name: 'POWER-ETHERNET-MIB::TruthValue'
+              tags:
+                - tag: component
+                  value: poe
+                - tag: interface
+                  value: '{#POE_IFNAME}'
+                - tag: stack_member
+                  value: '{#POE_STACK}'
+            - uuid: 104f0d34370b49baa7b7bb822bf89313
+              name: 'PoE {#POE_IFNAME}: Power class'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.1.1.10.{#SNMPINDEX}]'
+              key: 'poe.port.class[pethPsePortPowerClassifications.{#SNMPINDEX}]'
+              delay: 3m
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                The detected or assigned PoE power class of the powered device connected to the port.
+              valuemap:
+                name: 'POWER-ETHERNET-MIB::pethPsePortPowerClassifications'
+              tags:
+                - tag: component
+                  value: poe
+                - tag: interface
+                  value: '{#POE_IFNAME}'
+                - tag: stack_member
+                  value: '{#POE_STACK}'
+            - uuid: 8e7d05bd17c0495e87ed67e68250ae2e
+              name: 'PoE {#POE_IFNAME}: Detection status'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.1.1.6.{#SNMPINDEX}]'
+              key: 'poe.port.detection[pethPsePortDetectionStatus.{#SNMPINDEX}]'
+              delay: 3m
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                The PoE detection status of the port.
+                Common values:
+                searching - no powered device is currently detected.
+                deliveringPower - the port is currently supplying power.
+                fault / otherFault - a PoE fault condition is present.
+              valuemap:
+                name: 'POWER-ETHERNET-MIB::pethPsePortDetectionStatus'
+              tags:
+                - tag: component
+                  value: poe
+                - tag: interface
+                  value: '{#POE_IFNAME}'
+                - tag: stack_member
+                  value: '{#POE_STACK}'
+            - uuid: 9399f7e2bd1742b8b86ba1c09611f6b2
+              name: 'PoE {#POE_IFNAME}: Power priority'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.1.1.7.{#SNMPINDEX}]'
+              key: 'poe.port.priority[pethPsePortPowerPriority.{#SNMPINDEX}]'
+              delay: 3m
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                The PoE power priority assigned to the port.
+                This priority can be used by the switch when available PoE power is insufficient.
+              valuemap:
+                name: 'POWER-ETHERNET-MIB::pethPsePortDetectionStatus'
+              tags:
+                - tag: component
+                  value: poe
+                - tag: interface
+                  value: '{#POE_IFNAME}'
+                - tag: stack_member
+                  value: '{#POE_STACK}'
+          trigger_prototypes:
+            - uuid: 3570b66adf5445628c0f82685abbe910
+              expression: '(last(/D-Link DGS_DXS Switch by SNMP/poe.port.detection[pethPsePortDetectionStatus.{#SNMPINDEX}])=4 or last(/D-Link DGS_DXS Switch by SNMP/poe.port.detection[pethPsePortDetectionStatus.{#SNMPINDEX}])=6) and last(/D-Link DGS_DXS Switch by SNMP/poe.port.admin[pethPsePortAdminEnable.{#SNMPINDEX}])=1'
+              name: 'Name: D-Link DGS_DXS Switch: PoE {#POE_IFNAME}: Port fault'
+              opdata: 'PoE status: {ITEM.LASTVALUE1}'
+              priority: AVERAGE
+              description: |
+                A PoE fault condition was detected on this port.
+                Check the connected powered device, cable, patch panel and PoE budget. A fault can indicate overload, short-circuit, invalid powered device detection or another PoE negotiation issue.
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var json = JSON.parse(value);
+                  var rows;
+                  if (json instanceof Array) {
+                      rows = json;
+                  } else if (json.data instanceof Array) {
+                      rows = json.data;
+                  } else {
+                      throw "Unsupported LLD JSON format";
+                  }
+                  for (var i = 0; i < rows.length; i++) {
+                      var row = rows[i];
+                      var snmpindex = row["{#SNMPINDEX}"];
+                      if (snmpindex === undefined || snmpindex === null) {
+                          continue;
+                      }
+                      snmpindex = String(snmpindex);
+                      var parts = snmpindex.split(".");
+                      if (parts.length >= 2) {
+                          row["{#POE_STACK}"] = parts[0];
+                          row["{#POE_PORT}"] = parts[1];
+                          row["{#POE_IFNAME}"] = "eth" + parts[0] + "/0/" + parts[1];
+                      }
+                  }
+                  return JSON.stringify(json);
+        - uuid: b14310fd284e48b7acb7c79106e0251a
+          name: 'PoE stack members Discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#PSE.POWER},1.3.6.1.2.1.105.1.3.1.1.2,{#PSE.STATUS},1.3.6.1.2.1.105.1.3.1.1.3,{#PSE.CONSUMPTION},1.3.6.1.2.1.105.1.3.1.1.4,{#PSE.THRESHOLD},1.3.6.1.2.1.105.1.3.1.1.5]'
+          key: poe.stack.discovery
+          delay: 1h
+          item_prototypes:
+            - uuid: 7608491445c3488ba604cc195517d379
+              name: 'PoE stack member {#SNMPINDEX}: Power budget'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.3.1.1.2.{#SNMPINDEX}]'
+              key: 'poe.stack.power.total[pethMainPsePower.{#SNMPINDEX}]'
+              delay: 3m
+              units: W
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                The nominal power of the PSE expressed in Watts.
+              tags:
+                - tag: component
+                  value: poe
+                - tag: stack_member
+                  value: '{#SNMPINDEX}'
+            - uuid: 97fe2d46930d4d75bfbe18ba7d82571a
+              name: 'PoE stack member {#SNMPINDEX}: Power consumption'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.3.1.1.4.{#SNMPINDEX}]'
+              key: 'poe.stack.power.used[pethMainPseConsumptionPower.{#SNMPINDEX}]'
+              delay: 3m
+              units: W
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                Measured usage power expressed in Watts for this stack member.
+              tags:
+                - tag: component
+                  value: poe
+                - tag: stack_member
+                  value: '{#SNMPINDEX}'
+            - uuid: 579b27feae694f37813ca80b5e209f6d
+              name: 'PoE stack member {#SNMPINDEX}: Power utilization'
+              type: CALCULATED
+              key: 'poe.stack.power.utilization[{#SNMPINDEX}]'
+              delay: 3m
+              value_type: FLOAT
+              units: '%'
+              params: 'last(//poe.stack.power.used[pethMainPseConsumptionPower.{#SNMPINDEX}])/last(//poe.stack.power.total[pethMainPsePower.{#SNMPINDEX}])*100'
+              description: |
+                Calculated PoE power utilization for this stack member.
+                Formula:
+                PoE power consumption / PoE power budget * 100
+              valuemap:
+                name: 'POWER-ETHERNET-MIB::pethMainPseOperStatus'
+              tags:
+                - tag: component
+                  value: poe
+                - tag: stack_member
+                  value: '{#SNMPINDEX}'
+              trigger_prototypes:
+                - uuid: e8e9217c84e84a6293255752220b5dd9
+                  expression: 'min(/D-Link DGS_DXS Switch by SNMP/poe.stack.power.utilization[{#SNMPINDEX}],{$POE.DETECTION_TIME})>{$POE.UTIL.HIGH}'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/poe.stack.power.utilization[{#SNMPINDEX}],{$POE.DETECTION_TIME})<{$POE.UTIL.HIGH}-5'
+                  name: 'Name: D-Link DGS_DXS Switch: PoE stack member {#SNMPINDEX}: Power budget usage is critically high'
+                  opdata: 'PoE usage: {ITEM.LASTVALUE1}'
+                  priority: AVERAGE
+                  description: |
+                    PoE power budget utilization is above the high threshold for this stack member.
+                    New powered devices may fail to start or existing devices may be denied power if the available PoE budget is exhausted.
+                - uuid: adf60d476ef44f659170efac0fbedf4f
+                  expression: 'min(/D-Link DGS_DXS Switch by SNMP/poe.stack.power.utilization[{#SNMPINDEX}],{$POE.DETECTION_TIME})>{$POE.UTIL.WARN}'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/poe.stack.power.utilization[{#SNMPINDEX}],{$POE.DETECTION_TIME})<{$POE.UTIL.WARN}-5'
+                  name: 'Name: D-Link DGS_DXS Switch: PoE stack member {#SNMPINDEX}: Power budget usage is high'
+                  opdata: 'PoE usage: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  description: |
+                    PoE power budget utilization is above the warning threshold for this stack member.
+                    This may indicate that the switch is close to its available PoE budget. Check connected powered devices, PoE classes and total power consumption.
+                  dependencies:
+                    - name: 'Name: D-Link DGS_DXS Switch: PoE stack member {#SNMPINDEX}: Power budget usage is critically high'
+                      expression: 'min(/D-Link DGS_DXS Switch by SNMP/poe.stack.power.utilization[{#SNMPINDEX}],{$POE.DETECTION_TIME})>{$POE.UTIL.HIGH}'
+                      recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/poe.stack.power.utilization[{#SNMPINDEX}],{$POE.DETECTION_TIME})<{$POE.UTIL.HIGH}-5'
+            - uuid: 68fd6cb0cc124aceb421e4669f18724f
+              name: 'PoE stack member {#SNMPINDEX}: Operating status'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.3.1.1.3.{#SNMPINDEX}]'
+              key: 'poe.stack.status[pethMainPseOperStatus.{#SNMPINDEX}]'
+              delay: 3m
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                The operational status of the main PSE for this stack member.
+              valuemap:
+                name: 'POWER-ETHERNET-MIB::pethMainPseOperStatus'
+              tags:
+                - tag: component
+                  value: poe
+                - tag: stack_member
+                  value: '{#SNMPINDEX}'
+              trigger_prototypes:
+                - uuid: bf30b48c1c7c4380a71053df6673638c
+                  expression: 'last(/D-Link DGS_DXS Switch by SNMP/poe.stack.status[pethMainPseOperStatus.{#SNMPINDEX}])<>1'
+                  name: 'Name: D-Link DGS_DXS Switch: PoE stack member {#SNMPINDEX}: PSE is not operational'
+                  opdata: 'Current status: {ITEM.LASTVALUE1}'
+                  priority: AVERAGE
+                  description: |
+                    The PoE main PSE for this stack member is not operational.
+                    Check the switch power supply, PoE subsystem status, PoE budget and hardware logs.
+            - uuid: 7116ad3c6fc8419aa7d67c611d7a7f5c
+              name: 'PoE stack member {#SNMPINDEX}: Usage threshold'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.105.1.3.1.1.5.{#SNMPINDEX}]'
+              key: 'poe.stack.usage.threshold[pethMainPseUsageThreshold.{#SNMPINDEX}]'
+              delay: 3m
+              units: '%'
+              description: |
+                MIB: POWER-ETHERNET-MIB
+                The usage threshold configured on the PSE, expressed as a percentage.
+              tags:
+                - tag: component
+                  value: poe
+                - tag: stack_member
+                  value: '{#SNMPINDEX}'
+          graph_prototypes:
+            - uuid: cbd62067b1a146e58a7112ada46cfb96
+              name: 'PoE stack member {#SNMPINDEX}: Power consumption'
+              ymin_type_1: FIXED
+              ymax_type_1: ITEM
+              ymax_item_1:
+                host: 'D-Link DGS_DXS Switch by SNMP'
+                key: 'poe.stack.power.total[pethMainPsePower.{#SNMPINDEX}]'
+              graph_items:
+                - drawtype: FILLED_REGION
+                  color: 0080FF
+                  calc_fnc: ALL
+                  item:
+                    host: 'D-Link DGS_DXS Switch by SNMP'
+                    key: 'poe.stack.power.used[pethMainPseConsumptionPower.{#SNMPINDEX}]'
+                - sortorder: '1'
+                  drawtype: DASHED_LINE
+                  color: C62828
+                  item:
+                    host: 'D-Link DGS_DXS Switch by SNMP'
+                    key: 'poe.stack.power.total[pethMainPsePower.{#SNMPINDEX}]'
+            - uuid: dd677ea0bb164071b4b7da7586d610dc
+              name: 'PoE stack member {#SNMPINDEX}: Power utilization'
+              ymin_type_1: FIXED
+              graph_items:
+                - drawtype: FILLED_REGION
+                  color: 388E3C
+                  calc_fnc: ALL
+                  item:
+                    host: 'D-Link DGS_DXS Switch by SNMP'
+                    key: 'poe.stack.power.utilization[{#SNMPINDEX}]'
         - uuid: 05113dc54dd245e5b2e3e2ab2d96415b
           name: 'PSU Discovery'
           type: SNMP_AGENT
@@ -1096,7 +1370,7 @@ zabbix_export:
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)<{$TEMP_CRIT:"{#SNMPVALUE}"}-3'
                   name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is above critical threshold'
-                  event_name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is above critical threshold: >{$TEMP_CRIT:"{#SNMPVALUE}"}'
+                  event_name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is above critical threshold: >{$TEMP_CRIT:"{#SNMPVALUE}"}'
                   opdata: 'Current value: {ITEM.LASTVALUE1}'
                   priority: HIGH
                   description: 'This trigger uses temperature sensor values as well as temperature sensor status if available'
@@ -1110,7 +1384,7 @@ zabbix_export:
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)<{$TEMP_WARN:"{#SNMPVALUE}"}-3'
                   name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is above warning threshold'
-                  event_name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is above warning threshold: >{$TEMP_WARN:"{#SNMPVALUE}"}'
+                  event_name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is above warning threshold: >{$TEMP_WARN:"{#SNMPVALUE}"}'
                   opdata: 'Current value: {ITEM.LASTVALUE1}'
                   priority: WARNING
                   description: 'This trigger uses temperature sensor values as well as temperature sensor status if available'
@@ -1128,7 +1402,7 @@ zabbix_export:
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'min(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)>{$TEMP_CRIT_LOW:"{#SNMPVALUE}"}+3'
                   name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is too low'
-                  event_name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is too low: <{$TEMP_CRIT_LOW:"{#SNMPVALUE}"}'
+                  event_name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is too low: <{$TEMP_CRIT_LOW:"{#SNMPVALUE}"}'
                   opdata: 'Current value: {ITEM.LASTVALUE1}'
                   priority: AVERAGE
                   tags:
@@ -1213,6 +1487,15 @@ zabbix_export:
           value: '.*'
         - macro: '{$NET.IF.IFTYPE.NOT_MATCHES}'
           value: CHANGE_IF_NEEDED
+        - macro: '{$POE.DETECTION_TIME}'
+          value: 5m
+          description: 'Time window used by PoE triggers to evaluate power usage or PoE fault counters.'
+        - macro: '{$POE.UTIL.HIGH}'
+          value: '90'
+          description: 'High threshold for PoE power budget utilization, in percent.'
+        - macro: '{$POE.UTIL.WARN}'
+          value: '80'
+          description: 'Warning threshold for PoE power budget utilization, in percent.'
         - macro: '{$PSU_CRIT_STATUS}'
           value: '4'
         - macro: '{$SNMP.TIMEOUT}'
@@ -1669,6 +1952,89 @@ zabbix_export:
                     - type: INTEGER
                       name: rows
                       value: '8'
+            - name: PoE
+              widgets:
+                - type: honeycomb
+                  name: 'Power budget'
+                  width: '24'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'PoE stack member *: Power budget'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.regsub("^PoE stack member ([0-9]+): .*$", "Unit \1")}'
+                    - type: STRING
+                      name: reference
+                      value: OKHCG
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
+                - type: graphprototype
+                  name: 'Power consumption'
+                  'y': '3'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'D-Link DGS_DXS Switch by SNMP'
+                        name: 'PoE stack member {#SNMPINDEX}: Power consumption'
+                    - type: STRING
+                      name: reference
+                      value: GMAQW
+                - type: graphprototype
+                  name: 'Power utilization'
+                  'y': '8'
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'D-Link DGS_DXS Switch by SNMP'
+                        name: 'PoE stack member {#SNMPINDEX}: Power utilization'
+                    - type: STRING
+                      name: reference
+                      value: UZHQM
+                - type: honeycomb
+                  name: 'Power consumption'
+                  x: '24'
+                  width: '24'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'PoE stack member *: Power consumption'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.regsub("^PoE stack member ([0-9]+): .*$", "Unit \1")}'
+                    - type: STRING
+                      name: reference
+                      value: YNKHX
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
+                - type: honeycomb
+                  name: 'Power utilization'
+                  x: '48'
+                  width: '24'
+                  height: '3'
+                  fields:
+                    - type: STRING
+                      name: items.0
+                      value: 'PoE stack member *: Power utilization'
+                    - type: STRING
+                      name: primary_label
+                      value: '{{ITEM.NAME}.regsub("^PoE stack member ([0-9]+): .*$", "Unit \1")}'
+                    - type: STRING
+                      name: reference
+                      value: LWPXG
+                    - type: INTEGER
+                      name: secondary_label_decimal_places
+                      value: '0'
       valuemaps:
         - uuid: c58042a84427458b86ca73a5efccec1d
           name: 'EQUIPMENT-MIB::swFanStatus'
@@ -2285,6 +2651,46 @@ zabbix_export:
               newvalue: ptm
             - value: '290'
               newvalue: ghn
+        - uuid: d0b00a35b59e4583bb579148aafc44ce
+          name: 'POWER-ETHERNET-MIB::pethMainPseOperStatus'
+          mappings:
+            - value: '1'
+              newvalue: 'on'
+            - value: '2'
+              newvalue: 'off'
+            - value: '3'
+              newvalue: faulty
+        - uuid: 7121e3d13bea4b4ea188eb26ddbf0c3c
+          name: 'POWER-ETHERNET-MIB::pethPsePortDetectionStatus'
+          mappings:
+            - value: '1'
+              newvalue: critical
+            - value: '2'
+              newvalue: high
+            - value: '3'
+              newvalue: low
+        - uuid: a387c93cb0964245a374eb2b7fc778a3
+          name: 'POWER-ETHERNET-MIB::pethPsePortPowerClassifications'
+          mappings:
+            - value: '1'
+              newvalue: class0
+            - value: '2'
+              newvalue: class1
+            - value: '3'
+              newvalue: class2
+            - value: '4'
+              newvalue: class3
+            - value: '5'
+              newvalue: class4
+            - value: '6'
+              newvalue: 'class5 / unknown'
+        - uuid: 648923455be24a7bbd716e21963fdd57
+          name: 'POWER-ETHERNET-MIB::TruthValue'
+          mappings:
+            - value: '1'
+              newvalue: 'true'
+            - value: '2'
+              newvalue: 'false'
         - uuid: 974474dfbd064dabac9943c0e317579f
           name: 'Service state'
           mappings:
@@ -2304,20 +2710,20 @@ zabbix_export:
   triggers:
     - uuid: e1b8dc975fa54abd8747ff716e195bc6
       expression: '(last(/D-Link DGS_DXS Switch by SNMP/system.hw.uptime[hrSystemUptime.0])>0 and last(/D-Link DGS_DXS Switch by SNMP/system.hw.uptime[hrSystemUptime.0])<10m) or (last(/D-Link DGS_DXS Switch by SNMP/system.hw.uptime[hrSystemUptime.0])=0 and last(/D-Link DGS_DXS Switch by SNMP/system.net.uptime[sysUpTime.0])<10m)'
-      name: 'D-Link DES_DGS Switch: Host has been restarted'
-      event_name: 'D-Link DES_DGS Switch: {HOST.NAME} has been restarted (uptime < 10m)'
+      name: 'D-Link DGS_DXS Switch: Host has been restarted'
+      event_name: 'D-Link DGS_DXS Switch: {HOST.NAME} has been restarted (uptime < 10m)'
       priority: WARNING
       description: 'Uptime is less than 10 minutes.'
       manual_close: 'YES'
       dependencies:
-        - name: 'D-Link DES_DGS Switch: No SNMP data collection'
+        - name: 'D-Link DGS_DXS Switch: No SNMP data collection'
           expression: 'max(/D-Link DGS_DXS Switch by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
       tags:
         - tag: scope
           value: notice
   graphs:
     - uuid: 86e29ffad3b74e27bc4eae8fae355e6e
-      name: 'D-Link DES_DGS Switch: CPU utilization'
+      name: 'D-Link DGS_DXS Switch: CPU utilization'
       ymin_type_1: FIXED
       ymax_type_1: FIXED
       graph_items:
