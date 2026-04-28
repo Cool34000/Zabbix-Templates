@@ -888,6 +888,18 @@ zabbix_export:
                 - tag: scope
                   value: performance
           graph_prototypes:
+            - uuid: cb10004b0a9c4fb097a2725aa8e5da53
+              name: 'Interface {#IFNAME}({#IFALIAS}): CRC/FCS errors'
+              yaxismax: '0'
+              show_work_period: 'NO'
+              ymin_type_1: FIXED
+              graph_items:
+                - drawtype: BOLD_LINE
+                  color: F63100
+                  calc_fnc: ALL
+                  item:
+                    host: 'D-Link DGS_DXS Switch by SNMP'
+                    key: 'net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}]'
             - uuid: 6b576d8212434bde91f80d2df1d3e927
               name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
               graph_items:
@@ -1128,9 +1140,9 @@ zabbix_export:
         - tag: class
           value: network
         - tag: target
-          value: dlink
+          value: dgs-dxs
         - tag: target
-          value: dxs
+          value: dlink
       macros:
         - macro: '{$CPU.UTIL.CRIT}'
           value: '90'
@@ -1637,6 +1649,23 @@ zabbix_export:
                     - type: STRING
                       name: reference
                       value: AAAAA
+                    - type: INTEGER
+                      name: rows
+                      value: '8'
+            - name: 'CRC/FCS errors'
+              widgets:
+                - type: graphprototype
+                  width: '72'
+                  height: '40'
+                  fields:
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'D-Link DGS_DXS Switch by SNMP'
+                        name: 'Interface {#IFNAME}({#IFALIAS}): CRC/FCS errors'
+                    - type: STRING
+                      name: reference
+                      value: KHNHY
                     - type: INTEGER
                       name: rows
                       value: '8'
