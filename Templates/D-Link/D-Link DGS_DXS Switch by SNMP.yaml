@@ -1,7 +1,7 @@
 zabbix_export:
   version: '7.4'
   template_groups:
-    - uuid: 99aa1866418341ccafcdd8e272ff8ff3
+    - uuid: 36bff6c29af64692839d077febfc7079
       name: 'Templates/Network devices'
   templates:
     - uuid: 3370ba6978d04ceb932676494bc80b3c
@@ -473,7 +473,7 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: a36f695a3cc442ab9faafbd8310200ab
                   expression: 'count(/D-Link DGS_DXS Switch by SNMP/sensor.fan.status[swFanStatus.{#SNMPINDEX}],#1,"eq","{$FAN_CRIT_STATUS}")=1'
-                  name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Fan is in critical state'
+                  name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Fan is in critical state'
                   opdata: 'Current state: {ITEM.LASTVALUE1}'
                   priority: AVERAGE
                   description: 'Please check the fan unit'
@@ -523,6 +523,28 @@ zabbix_export:
                 operator: NOT_MATCHES_REGEX
           description: 'Discovering interfaces from IF-MIB.'
           item_prototypes:
+            - uuid: 4f5d2af51281410d85ea2b91d28c74ae
+              name: 'Interface {#IFNAME}({#IFALIAS}): FCS/CRC errors'
+              type: SNMP_AGENT
+              snmp_oid: 'get[1.3.6.1.2.1.10.7.2.1.3.{#SNMPINDEX}]'
+              key: 'net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}]'
+              delay: 3m
+              units: errors
+              description: |
+                MIB: EtherLike-MIB
+                The number of frames received on the interface that have an integral number of octets in length but fail the FCS check. This counter does not include frame-too-long or frame-too-short errors.
+                Physical layer coding errors on links above 10 Mb/s may also cause frames to fail the FCS check. For 10 Gb/s or faster interfaces, dot3HCStatsFCSErrors should be preferred when available because the 32-bit counter may wrap quickly.
+                Discontinuities in the value of this counter can occur at re-initialization of the management system, and at other times as indicated by ifCounterDiscontinuityTime.
+                This item uses Simple change preprocessing, so the stored value represents the number of new FCS/CRC errors since the previous poll.
+              preprocessing:
+                - type: SIMPLE_CHANGE
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
             - uuid: 96f36f3e4d264792b29ee63c11a44798
               name: 'Interface {#IFNAME}({#IFALIAS}): Inbound packets discarded'
               type: SNMP_AGENT
@@ -701,7 +723,7 @@ zabbix_export:
                   expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
-                  name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): Link down'
+                  name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): Link down'
                   opdata: 'Current state: {ITEM.LASTVALUE1}'
                   status: DISABLED
                   discover: NO_DISCOVER
@@ -743,6 +765,42 @@ zabbix_export:
                 - tag: interface
                   value: '{#IFNAME}'
           trigger_prototypes:
+            - uuid: 4c70f4739c224fd996fbfbb305b0bb5e
+              expression: |
+                sum(/D-Link DGS_DXS Switch by SNMP/net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}],{$IF.CRC.DETECTION_TIME})>{$IF.CRC.WARN:"{#IFNAME}"}
+                and
+                last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=1
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                sum(/D-Link DGS_DXS Switch by SNMP/net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}],{$IF.CRC.DETECTION_TIME})<={$IF.CRC.WARN:"{#IFNAME}"}*0.5
+                or
+                last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>1
+              name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): CRC/FCS errors detected'
+              opdata: 'CRC in last {$IF.CRC.DETECTION_TIME} above threshold. Last delta: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: |
+                CRC/FCS errors were detected on the interface.
+                
+                This usually indicates a physical layer issue such as a bad cable, faulty patch panel, SFP/transceiver problem, duplex/speed negotiation issue, or electrical interference.
+                
+                The trigger is based on the number of new CRC/FCS errors during the last {$IF.CRC.DETECTION_TIME}.
+                It recovers when the value falls below 50% of the configured threshold or when the interface is no longer operationally up.
+              manual_close: 'YES'
+              dependencies:
+                - name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): High CRC/FCS errors detected'
+                  expression: |
+                    sum(/D-Link DGS_DXS Switch by SNMP/net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}],{$IF.CRC.DETECTION_TIME})>{$IF.CRC.HIGH:"{#IFNAME}"}
+                    and
+                    last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=1
+                  recovery_expression: |
+                    sum(/D-Link DGS_DXS Switch by SNMP/net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}],{$IF.CRC.DETECTION_TIME})<={$IF.CRC.HIGH:"{#IFNAME}"}*0.5
+                    or
+                    last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>1
+              tags:
+                - tag: scope
+                  value: availability
+                - tag: scope
+                  value: performance
             - uuid: b22a042f08174724a5eb62d5e0d3f4c3
               expression: |
                 change(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])<0 and last(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0
@@ -760,17 +818,13 @@ zabbix_export:
               recovery_expression: |
                 (change(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0 and last(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}],#2)>0) or
                 (last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2)
-              name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): Ethernet has changed to lower speed than it was before'
+              name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): Ethernet has changed to lower speed than it was before'
               opdata: 'Current reported speed: {ITEM.LASTVALUE1}'
               status: DISABLED
               discover: NO_DISCOVER
               priority: INFO
               description: 'This Ethernet connection has transitioned down from its known maximum speed. This might be a sign of autonegotiation issues. Acknowledge to close the problem manually.'
               manual_close: 'YES'
-              dependencies:
-                - name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): Link down'
-                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
-                  recovery_expression: 'last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
               tags:
                 - tag: scope
                   value: performance
@@ -783,37 +837,51 @@ zabbix_export:
               recovery_expression: |
                 avg(/D-Link DGS_DXS Switch by SNMP/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}]) and
                 avg(/D-Link DGS_DXS Switch by SNMP/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/D-Link DGS_DXS Switch by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])
-              name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage'
+              name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage'
               event_name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage (>{$IF.UTIL.MAX:"{#IFNAME}"}%)'
               opdata: 'In: {ITEM.LASTVALUE1}, out: {ITEM.LASTVALUE3}, speed: {ITEM.LASTVALUE2}'
               priority: WARNING
               description: 'The utilization of the network interface is close to its estimated maximum bandwidth.'
               manual_close: 'YES'
-              dependencies:
-                - name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): Link down'
-                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
-                  recovery_expression: 'last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
               tags:
                 - tag: scope
                   value: performance
-            - uuid: 4c70f4739c224fd996fbfbb305b0bb5e
+            - uuid: 4ebd9fe473ac40d588af5d0718aec45b
               expression: |
-                min(/D-Link DGS_DXS Switch by SNMP/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
-                or min(/D-Link DGS_DXS Switch by SNMP/net.if.out.errors[ifOutErrors.{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
+                sum(/D-Link DGS_DXS Switch by SNMP/net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}],{$IF.CRC.DETECTION_TIME})>{$IF.CRC.HIGH:"{#IFNAME}"}
+                and
+                last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=1
               recovery_mode: RECOVERY_EXPRESSION
               recovery_expression: |
-                max(/D-Link DGS_DXS Switch by SNMP/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
-                and max(/D-Link DGS_DXS Switch by SNMP/net.if.out.errors[ifOutErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
-              name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): High error rate'
-              event_name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): High error rate (>{$IF.ERRORS.WARN:"{#IFNAME}"} for 5m)'
+                sum(/D-Link DGS_DXS Switch by SNMP/net.if.fcs.errors[dot3StatsFCSErrors.{#SNMPINDEX}],{$IF.CRC.DETECTION_TIME})<={$IF.CRC.HIGH:"{#IFNAME}"}*0.5
+                or
+                last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>1
+              name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): High CRC/FCS errors detected'
+              opdata: 'CRC in last {$IF.CRC.DETECTION_TIME} above threshold. Last delta: {ITEM.LASTVALUE1}'
+              priority: HIGH
+              description: |
+                A high number of CRC/FCS errors was detected on the interface.
+                
+                This indicates an active or severe physical layer issue. Check the cable, patch panel, SFP/transceiver, remote port, speed/duplex negotiation and interface counters on both sides.
+                
+                The trigger is based on the number of new CRC/FCS errors during the last {$IF.CRC.DETECTION_TIME}.
+                It recovers when the value falls below 50% of the configured high threshold or when the interface is no longer operationally up.
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: availability
+                - tag: scope
+                  value: performance
+            - uuid: dd4ab28124764fd990ef37a36fdcb328
+              expression: 'min(/D-Link DGS_DXS Switch by SNMP/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"} or min(/D-Link DGS_DXS Switch by SNMP/net.if.out.errors[ifOutErrors.{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8 and max(/D-Link DGS_DXS Switch by SNMP/net.if.out.errors[ifOutErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8'
+              name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): High error rate'
+              event_name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): High error rate (>{$IF.ERRORS.WARN:"{#IFNAME}"} for 5m)'
               opdata: 'errors in: {ITEM.LASTVALUE1}, errors out: {ITEM.LASTVALUE2}'
               priority: WARNING
               description: 'It recovers when it is below 80% of the `{$IF.ERRORS.WARN:"{#IFNAME}"}` threshold.'
               manual_close: 'YES'
-              dependencies:
-                - name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): Link down'
-                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
-                  recovery_expression: 'last(/D-Link DGS_DXS Switch by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
               tags:
                 - tag: scope
                   value: availability
@@ -858,6 +926,23 @@ zabbix_export:
                   item:
                     host: 'D-Link DGS_DXS Switch by SNMP'
                     key: 'net.if.in.discards[ifInDiscards.{#SNMPINDEX}]'
+          overrides:
+            - name: 'Disable CRC on non-physical interfaces'
+              step: '1'
+              stop: STOP
+              filter:
+                conditions:
+                  - macro: '{#IFNAME}'
+                    value: '^eth[0-9]+/[0-9]+/[0-9]+$'
+                    operator: NOT_MATCHES_REGEX
+              operations:
+                - operator: LIKE
+                  value: 'FCS/CRC errors'
+                  discover: NO_DISCOVER
+                - operationobject: TRIGGER_PROTOTYPE
+                  operator: LIKE
+                  value: 'CRC/FCS errors'
+                  discover: NO_DISCOVER
         - uuid: 53e0964a131d41efa16b84667a50ec50
           name: 'EtherLike-MIB Discovery'
           type: SNMP_AGENT
@@ -916,7 +1001,7 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: cbf92fd716d24f66afd3fa434ec980a6
                   expression: 'last(/D-Link DGS_DXS Switch by SNMP/net.if.duplex[dot3StatsDuplexStatus.{#SNMPINDEX}])=2'
-                  name: 'D-Link DES_DGS Switch: Interface {#IFNAME}({#IFALIAS}): In half-duplex mode'
+                  name: 'D-Link DGS_DXS Switch: Interface {#IFNAME}({#IFALIAS}): In half-duplex mode'
                   priority: WARNING
                   description: 'Please check autonegotiation settings and cabling.'
                   manual_close: 'YES'
@@ -966,7 +1051,7 @@ zabbix_export:
               trigger_prototypes:
                 - uuid: 112e7a2aef4d41d1af6dbf3009d09692
                   expression: 'count(/D-Link DGS_DXS Switch by SNMP/sensor.psu.status[swPowerStatus.{#SNMPINDEX}],#1,"eq","{$PSU_CRIT_STATUS}")=1'
-                  name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Power supply is in critical state'
+                  name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Power supply is in critical state'
                   opdata: 'Current state: {ITEM.LASTVALUE1}'
                   priority: AVERAGE
                   description: 'Please check the power supply unit for errors'
@@ -998,7 +1083,7 @@ zabbix_export:
                   expression: 'avg(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)>{$TEMP_CRIT:"{#SNMPVALUE}"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)<{$TEMP_CRIT:"{#SNMPVALUE}"}-3'
-                  name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is above critical threshold'
+                  name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is above critical threshold'
                   event_name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is above critical threshold: >{$TEMP_CRIT:"{#SNMPVALUE}"}'
                   opdata: 'Current value: {ITEM.LASTVALUE1}'
                   priority: HIGH
@@ -1012,13 +1097,13 @@ zabbix_export:
                   expression: 'avg(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)>{$TEMP_WARN:"{#SNMPVALUE}"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)<{$TEMP_WARN:"{#SNMPVALUE}"}-3'
-                  name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is above warning threshold'
+                  name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is above warning threshold'
                   event_name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is above warning threshold: >{$TEMP_WARN:"{#SNMPVALUE}"}'
                   opdata: 'Current value: {ITEM.LASTVALUE1}'
                   priority: WARNING
                   description: 'This trigger uses temperature sensor values as well as temperature sensor status if available'
                   dependencies:
-                    - name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is above critical threshold'
+                    - name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is above critical threshold'
                       expression: 'avg(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)>{$TEMP_CRIT:"{#SNMPVALUE}"}'
                       recovery_expression: 'max(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)<{$TEMP_CRIT:"{#SNMPVALUE}"}-3'
                   tags:
@@ -1030,7 +1115,7 @@ zabbix_export:
                   expression: 'avg(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)<{$TEMP_CRIT_LOW:"{#SNMPVALUE}"}'
                   recovery_mode: RECOVERY_EXPRESSION
                   recovery_expression: 'min(/D-Link DGS_DXS Switch by SNMP/sensor.temp.value[swTemperatureCurrent.{#SNMPINDEX}],5m)>{$TEMP_CRIT_LOW:"{#SNMPVALUE}"}+3'
-                  name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is too low'
+                  name: 'D-Link DGS_DXS Switch: #{#SNMPVALUE}: Temperature is too low'
                   event_name: 'D-Link DES_DGS Switch: #{#SNMPVALUE}: Temperature is too low: <{$TEMP_CRIT_LOW:"{#SNMPVALUE}"}'
                   opdata: 'Current value: {ITEM.LASTVALUE1}'
                   priority: AVERAGE
@@ -1071,6 +1156,15 @@ zabbix_export:
             label: 'Threshold of the average ICMP response'
             description: 'Warning threshold of the average ICMP response time in seconds. No less than 0.'
             regex: '^-?([0-9]+|(([0-9]+)\.([0-9]+)))$'
+        - macro: '{$IF.CRC.DETECTION_TIME}'
+          value: 5m
+          description: 'Time window used to evaluate new CRC/FCS errors on an interface.'
+        - macro: '{$IF.CRC.HIGH}'
+          value: '100'
+          description: 'High threshold for new CRC/FCS errors'
+        - macro: '{$IF.CRC.WARN}'
+          value: '10'
+          description: 'Warning threshold for new CRC/FCS errors'
         - macro: '{$IF.ERRORS.WARN}'
           value: '2'
           description: 'Warning threshold of error packet rate. Can be used with interface name as context.'
